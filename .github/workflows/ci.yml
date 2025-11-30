@@ -1,4 +1,4 @@
-name: CI Pipeline # Nome do processo
+name: build-and-test
 
 # Quando isso deve rodar?
 on:
