@@ -8,6 +8,10 @@ export class AuthenticateUserService {
     if (!email || !password) {
       throw new AppError("E-mail e senha são obrigatórios.", 400);
     }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      throw new AppError("Formato de e-mail inválido.", 400);
+    }
 
     const { rows, rowCount } = await pool.query(
       "SELECT * FROM users WHERE email = $1",

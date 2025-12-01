@@ -7,6 +7,10 @@ export class UserService {
     if (!name || !email || !password) {
       throw new AppError("Nome, e-mail e senha são obrigatórios.", 400);
     }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      throw new AppError("Formato de e-mail inválido.", 400);
+    }
 
     const passwordHash = await hash(password, 8);
     const values = [name, email, passwordHash];
