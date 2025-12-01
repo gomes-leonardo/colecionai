@@ -37,6 +37,13 @@ describe("UserService", () => {
       userService.create("Teste Usuario", "", "Mudar@123")
     ).rejects.toBeInstanceOf(AppError);
   });
+  it("should throw an error if password is missing", async () => {
+    const userService = new UserService();
+
+    await expect(
+      userService.create("Teste Usuario", "test@email.com", "")
+    ).rejects.toBeInstanceOf(AppError);
+  });
 
   it("should throw a specific error message", async () => {
     const userService = new UserService();
