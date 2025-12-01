@@ -6,7 +6,7 @@ const port = 3333;
 
 app.use(express.json());
 
-app.use("/products", router);
+app.use(router);
 
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);
