@@ -16,7 +16,7 @@ afterEach(() => {
 
 const mockedPool = pool as jest.Mocked<typeof pool>;
 
-describe("UserService", () => {
+describe("POST - UserService", () => {
   it("should throw an error if name or email or password is missing", async () => {
     const userService = new UserService();
     await expect(userService.create("", "", "")).rejects.toBeInstanceOf(
@@ -35,6 +35,13 @@ describe("UserService", () => {
 
     await expect(
       userService.create("Teste Usuario", "", "Mudar@123")
+    ).rejects.toBeInstanceOf(AppError);
+  });
+  it("should throw an error if email is invalid", async () => {
+    const userService = new UserService();
+
+    await expect(
+      userService.create("Teste Usuario", "leonardo", "Mudar@123")
     ).rejects.toBeInstanceOf(AppError);
   });
   it("should throw an error if password is missing", async () => {

@@ -80,7 +80,6 @@ describe("SessionService", () => {
     expect(response).toHaveProperty("token");
     expect(response.user.email).toBe("john@example.com");
   });
-
   it("should not authenticate with incorrect email", async () => {
     const authenticateUser = new AuthenticateUserService();
 
