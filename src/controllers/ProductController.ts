@@ -16,8 +16,9 @@ export class ProductController {
 
   async create(req: Request, res: Response) {
     const { name, price } = req.body;
+    const userId = req.user.id;
     try {
-      const result = await productService.create(name, price);
+      const result = await productService.create(name, price, userId);
       return res.status(201).json(result);
     } catch (error) {
       if (error instanceof AppError) {
