@@ -9,13 +9,13 @@ export class ProductService {
     return rows;
   }
 
-  async create(name: string, price: number) {
+  async create(name: string, price: number, userId: number) {
     if (!name || !price) {
       throw new AppError("Nome e preços são obrigatórios.", 400);
     }
     const query =
-      "INSERT INTO products (name, price) VALUES ($1, $2) RETURNING *";
-    const values = [name, price];
+      "INSERT INTO products (name, price, user_id) VALUES ($1, $2, $3) RETURNING *";
+    const values = [name, price, userId];
 
     const { rows } = await pool.query(query, values);
     return rows[0];
