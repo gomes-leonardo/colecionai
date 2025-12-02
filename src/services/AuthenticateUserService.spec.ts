@@ -78,45 +78,44 @@ describe("SessionService", () => {
     );
 
     expect(response).toHaveProperty("token");
+    it("should not authenticate with incorrect email", async () => {
+      const authenticateUser = new AuthenticateUserService();
+
+      (mockedPool.query as jest.Mock).mockResolvedValue({
+        rowCount: 0,
+        rows: [],
+      });
+
+      await expect(
+        authenticateUser.create("email@errado.com", "123456")
+      ).rejects.toEqual(
+        expect.objectContaining({ message: "Email ou senha incorretos." })
+      );
+    });
+
+    it("should not authenticate with incorrect password", async () => {
+      const authenticateUser = new AuthenticateUserService();
+
+      const hashedPassword = await hash("senha_correta", 8);
+
+      (mockedPool.query as jest.Mock).mockResolvedValue({
+        rowCount: 1,
+        rows: [
+          {
+            id: 1,
+            name: "John Doe",
+            email: "john@example.com",
+            password: hashedPassword,
+          },
+        ],
+      });
+
+      await expect(
+        authenticateUser.create("john@example.com", "senha_errada")
+      ).rejects.toEqual(
+        expect.objectContaining({ message: "Email ou senha incorretos." })
+      );
+    });
     expect(response.user.email).toBe("john@example.com");
-  });
-
-  it("should not authenticate with incorrect email", async () => {
-    const authenticateUser = new AuthenticateUserService();
-
-    (mockedPool.query as jest.Mock).mockResolvedValue({
-      rowCount: 0,
-      rows: [],
-    });
-
-    await expect(
-      authenticateUser.create("email@errado.com", "123456")
-    ).rejects.toEqual(
-      expect.objectContaining({ message: "Email ou senha incorretos." })
-    );
-  });
-
-  it("should not authenticate with incorrect password", async () => {
-    const authenticateUser = new AuthenticateUserService();
-
-    const hashedPassword = await hash("senha_correta", 8);
-
-    (mockedPool.query as jest.Mock).mockResolvedValue({
-      rowCount: 1,
-      rows: [
-        {
-          id: 1,
-          name: "John Doe",
-          email: "john@example.com",
-          password: hashedPassword,
-        },
-      ],
-    });
-
-    await expect(
-      authenticateUser.create("john@example.com", "senha_errada")
-    ).rejects.toEqual(
-      expect.objectContaining({ message: "Email ou senha incorretos." })
-    );
   });
 });
