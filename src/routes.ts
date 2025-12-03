@@ -13,6 +13,7 @@ router.post("/users", userController.create);
 router.post("/sessions", sessionController.create);
 router.get("/products", productController.list);
 
+router.get("/products/me", ensureAuthenticated, productController.listByUserId);
 router.post("/products", ensureAuthenticated, productController.create);
 router.delete("/products/:id", ensureAuthenticated, productController.delete);
 router.put("/products/:id", ensureAuthenticated, productController.update);

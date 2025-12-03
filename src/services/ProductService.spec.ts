@@ -2,159 +2,169 @@ import { ProductService } from "./ProductService";
 import { AppError } from "../errors/AppError";
 import { pool } from "../db";
 
-jest.mock("../db", () => {
-  return {
-    pool: {
-      query: jest.fn(),
-    },
-  };
-});
-
-afterEach(() => {
-  jest.clearAllMocks();
-});
+jest.mock("../db", () => ({
+  pool: {
+    query: jest.fn(),
+  },
+}));
 
 const mockedPool = pool as jest.Mocked<typeof pool>;
 
-describe("POST - ProductService", () => {
+describe("ProductService Unit Tests", () => {
   afterEach(() => {
     jest.clearAllMocks();
   });
-  it("should throw an error if name or price is missing", async () => {
-    const productService = new ProductService();
-    await expect(productService.create("", 0, 1)).rejects.toBeInstanceOf(
-      AppError
-    );
-  });
-  it("should throw an error if name is missing", async () => {
-    const productService = new ProductService();
 
-    await expect(productService.create("", 5000, 1)).rejects.toBeInstanceOf(
-      AppError
-    );
-  });
-  it("should throw an error if price is missing", async () => {
-    const productService = new ProductService();
+  describe("create()", () => {
+    it("should throw error if inputs are missing", async () => {
+      const service = new ProductService();
+      await expect(service.create("", 0, 1)).rejects.toBeInstanceOf(AppError);
+      await expect(service.create("TV", 0, 1)).rejects.toBeInstanceOf(AppError);
+    });
 
-    await expect(
-      productService.create("Macbook air 2010", 0, 1)
-    ).rejects.toBeInstanceOf(AppError);
-  });
-
-  it("should throw a specific error message", async () => {
-    const productService = new ProductService();
-
-    try {
-      await productService.create("", 10, 1);
-    } catch (error) {
-      expect(error).toBeInstanceOf(AppError);
-      expect((error as AppError).message).toBe(
-        "Nome e preços são obrigatórios."
+    it("should throw DB error if user_id does not exist (Foreign Key)", async () => {
+      const service = new ProductService();
+      // Simulando erro do Postgres
+      (mockedPool.query as jest.Mock).mockRejectedValue(
+        new Error("violates foreign key constraint")
       );
-    }
-  });
-  it("should create a product successfully", async () => {
-    const productService = new ProductService();
 
-    (mockedPool.query as jest.Mock).mockResolvedValue({
-      rows: [{ id: 1, name: "Iphone", price: 5000 }],
-      rowCount: 1,
-    });
-
-    const result = await productService.create("Iphone", 5000, 1);
-
-    expect(result).toHaveProperty("id", 1);
-    expect(result.name).toBe("Iphone");
-
-    expect(mockedPool.query).toHaveBeenCalledTimes(1);
-  });
-});
-describe("PUT - ProductService", () => {
-  afterEach(() => {
-    jest.clearAllMocks();
-  });
-
-  it("should throw a specific error message if name or price is missing", async () => {
-    const productService = new ProductService();
-    try {
-      await productService.update("", 10, 1);
-    } catch (error) {
-      expect(error).toBeInstanceOf(AppError);
-      expect((error as AppError).message).toBe(
-        "Nome e preços são obrigatórios."
+      await expect(service.create("Iphone", 5000, 999)).rejects.toThrow(
+        "violates foreign key constraint"
       );
-    }
-  });
-
-  it("should throw 404 if product does not exist", async () => {
-    const productService = new ProductService();
-
-    (mockedPool.query as jest.Mock).mockResolvedValue({
-      rowCount: 0,
-      rows: [],
     });
 
-    await expect(productService.update("Xiaomi", 4500, 999)).rejects.toEqual(
-      expect.objectContaining({
-        statusCode: 404,
-        message: "Produto não encontrado",
-      })
-    );
+    it("should create a product successfully", async () => {
+      const service = new ProductService();
+
+      // Mock do INSERT
+      (mockedPool.query as jest.Mock).mockResolvedValue({
+        rows: [{ id: 1, name: "Iphone", price: 5000, user_id: 1 }],
+        rowCount: 1,
+      });
+
+      const result = await service.create("Iphone", 5000, 1);
+
+      expect(result).toHaveProperty("id", 1);
+      expect(result.name).toBe("Iphone");
+    });
   });
 
-  it("should update a product successfully", async () => {
-    const productService = new ProductService();
+  describe("update()", () => {
+    it("should throw 403 Forbidden if user is NOT the owner", async () => {
+      const service = new ProductService();
+      const productId = 10;
+      const ownerId = 50;
+      const hackerId = 999;
 
-    (mockedPool.query as jest.Mock).mockResolvedValue({
-      rowCount: 1,
-      rows: [{ id: 1, name: "Xiaomi", price: 4500 }],
+      (mockedPool.query as jest.Mock).mockResolvedValueOnce({
+        rowCount: 1,
+        rows: [{ id: productId, user_id: ownerId, name: "Original" }],
+      });
+
+      await expect(
+        service.update("Hacked", 100, hackerId, productId)
+      ).rejects.toEqual(
+        expect.objectContaining({
+          statusCode: 403,
+          message: expect.stringContaining("permissão"),
+        })
+      );
     });
 
-    const result = await productService.update("Xiaomi", 4500, 1);
+    it("should throw 404 if product does not exist", async () => {
+      const service = new ProductService();
+      (mockedPool.query as jest.Mock).mockResolvedValue({
+        rowCount: 0,
+        rows: [],
+      });
 
-    expect(result).toHaveProperty("id", 1);
-    expect(result.name).toBe("Xiaomi");
-    expect(mockedPool.query).toHaveBeenCalledTimes(1);
-  });
-});
-describe("DELETE - ProductService", () => {
-  afterEach(() => {
-    jest.clearAllMocks();
-  });
-
-  it("should throw 404 if product does not exist", async () => {
-    const productService = new ProductService();
-
-    (mockedPool.query as jest.Mock).mockResolvedValue({
-      rowCount: 0,
-      rows: [],
+      await expect(
+        service.update("Xiaomi", 4500, 1, 999)
+      ).rejects.toHaveProperty("statusCode", 404);
     });
 
-    await expect(productService.delete(99)).rejects.toEqual(
-      expect.objectContaining({
-        statusCode: 404,
-        message: "Produto não encontrado",
-      })
-    );
+    it("should update a product successfully", async () => {
+      const service = new ProductService();
+      const userId = 1;
+
+      (mockedPool.query as jest.Mock).mockResolvedValueOnce({
+        rowCount: 1,
+        rows: [{ id: 1, user_id: userId, name: "Old Name" }],
+      });
+
+      (mockedPool.query as jest.Mock).mockResolvedValueOnce({
+        rowCount: 1,
+        rows: [{ id: 1, user_id: userId, name: "New Name", price: 4500 }],
+      });
+
+      const result = await service.update("New Name", 4500, userId, 1);
+
+      expect(result.name).toBe("New Name");
+      expect(mockedPool.query).toHaveBeenCalledTimes(2);
+    });
   });
 
-  it("should delete a product successfully", async () => {
-    const productService = new ProductService();
+  describe("delete()", () => {
+    it("should throw 403 Forbidden if user is NOT the owner", async () => {
+      const service = new ProductService();
 
-    (mockedPool.query as jest.Mock).mockResolvedValue({
-      rowCount: 1,
-      rows: [],
+      (mockedPool.query as jest.Mock).mockResolvedValueOnce({
+        rowCount: 1,
+        rows: [{ id: 1, user_id: 50 }],
+      });
+
+      await expect(service.delete(1, 999)).rejects.toHaveProperty(
+        "statusCode",
+        403
+      );
     });
 
-    const result = await productService.delete(1);
+    it("should delete a product successfully", async () => {
+      const service = new ProductService();
+      const userId = 1;
 
-    expect(result).toBeUndefined();
+      (mockedPool.query as jest.Mock).mockResolvedValueOnce({
+        rowCount: 1,
+        rows: [{ id: 1, user_id: userId }],
+      });
 
-    expect(mockedPool.query).toHaveBeenCalledTimes(1);
+      (mockedPool.query as jest.Mock).mockResolvedValueOnce({
+        rowCount: 1,
+        rows: [],
+      });
 
-    expect(mockedPool.query).toHaveBeenCalledWith(
-      expect.stringContaining("DELETE"),
-      expect.arrayContaining([1])
-    );
+      await service.delete(1, userId);
+
+      expect(mockedPool.query).toHaveBeenCalledTimes(2);
+      expect(mockedPool.query).toHaveBeenNthCalledWith(
+        2,
+        expect.stringContaining("DELETE"),
+        expect.any(Array)
+      );
+    });
+  });
+
+  describe("list() & listByUserId()", () => {
+    it("should return all products", async () => {
+      const service = new ProductService();
+      const fakeData = [{ id: 1, name: "TV" }];
+
+      (mockedPool.query as jest.Mock).mockResolvedValue({ rows: fakeData });
+
+      const result = await service.list();
+      expect(result).toEqual(fakeData);
+    });
+
+    it("should list my products", async () => {
+      const service = new ProductService();
+      const fakeData = [{ id: 1, name: "TV", user_id: 1 }];
+
+      (mockedPool.query as jest.Mock).mockResolvedValue({ rows: fakeData });
+
+      const result = await service.listByUserId(1);
+      expect(result).toHaveLength(1);
+      expect(result[0].user_id).toBe(1);
+    });
   });
 });

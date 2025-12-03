@@ -13,6 +13,16 @@ export class ProductController {
       return res.status(500).json({ error: "Erro ao buscar produtos" });
     }
   }
+  async listByUserId(req: Request, res: Response) {
+    const userId = req.user.id;
+    try {
+      const products = await productService.listByUserId(userId);
+
+      return res.status(200).json(products);
+    } catch (error) {
+      return res.status(500).json({ error: "Erro ao buscar produtos" });
+    }
+  }
 
   async create(req: Request, res: Response) {
     const { name, price } = req.body;
@@ -31,8 +41,10 @@ export class ProductController {
   async update(req: Request, res: Response) {
     const { name, price } = req.body;
     const id = Number(req.params.id);
+    const userId = req.user.id;
+
     try {
-      const result = await productService.update(name, price, id);
+      const result = await productService.update(name, price, userId, id);
       return res.status(200).json(result);
     } catch (error) {
       if (error instanceof AppError) {
@@ -44,8 +56,10 @@ export class ProductController {
 
   async delete(req: Request, res: Response) {
     const id = Number(req.params.id);
+    const userId = req.user.id;
+
     try {
-      await productService.delete(id);
+      await productService.delete(id, userId);
       return res.status(204).json({});
     } catch (error) {
       if (error instanceof AppError) {
