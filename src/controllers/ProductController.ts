@@ -68,4 +68,28 @@ export class ProductController {
       return res.status(500).json({ error: "Erro ao deletar produto" });
     }
   }
+
+  async updateImage(req: Request, res: Response) {
+    const id = Number(req.params.id);
+    const userId = req.user.id;
+
+    const imageFilename = req.file?.filename;
+    if (!imageFilename) {
+      return res.status(400).json({ error: "Arquivo de imagem obrigatório" });
+    }
+
+    try {
+      const result = await productService.updateImage(
+        id,
+        userId,
+        imageFilename
+      );
+      return res.json(result);
+    } catch (error) {
+      if (error instanceof AppError) {
+        return res.status(error.statusCode).json({ error: error.message });
+      }
+      return res.status(500).json({ error: "Erro ao atualizar imagem" });
+    }
+  }
 }

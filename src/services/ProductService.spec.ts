@@ -167,4 +167,80 @@ describe("ProductService Unit Tests", () => {
       expect(result[0].user_id).toBe(1);
     });
   });
+
+  describe("updateImage()", () => {
+    it("should update product image successfully", async () => {
+      const service = new ProductService();
+      const productId = 1;
+      const userId = 1;
+      const imageFilename = "avatar-123.jpg";
+
+      (mockedPool.query as jest.Mock).mockResolvedValueOnce({
+        rowCount: 1,
+        rows: [
+          {
+            id: productId,
+            user_id: userId,
+            name: "Produto Sem Foto",
+            banner: null,
+          },
+        ],
+      });
+
+      (mockedPool.query as jest.Mock).mockResolvedValueOnce({
+        rowCount: 1,
+        rows: [
+          {
+            id: productId,
+            user_id: userId,
+            name: "Produto Sem Foto",
+            banner: imageFilename,
+          },
+        ],
+      });
+
+      const result = await service.updateImage(
+        productId,
+        userId,
+        imageFilename
+      );
+
+      expect(result.banner).toBe(imageFilename);
+
+      expect(mockedPool.query).toHaveBeenNthCalledWith(
+        2,
+        expect.stringContaining("UPDATE products SET banner"),
+        expect.arrayContaining([imageFilename, productId])
+      );
+    });
+
+    it("should throw 403 if user is not the owner", async () => {
+      const service = new ProductService();
+      const productId = 1;
+      const hackerId = 999;
+      const imageFilename = "hacked.jpg";
+
+      (mockedPool.query as jest.Mock).mockResolvedValueOnce({
+        rowCount: 1,
+        rows: [{ id: productId, user_id: 50 }],
+      });
+
+      await expect(
+        service.updateImage(productId, hackerId, imageFilename)
+      ).rejects.toHaveProperty("statusCode", 403);
+    });
+
+    it("should throw 404 if product does not exist", async () => {
+      const service = new ProductService();
+
+      (mockedPool.query as jest.Mock).mockResolvedValueOnce({
+        rowCount: 0,
+        rows: [],
+      });
+
+      await expect(
+        service.updateImage(999, 1, "foto.jpg")
+      ).rejects.toHaveProperty("statusCode", 404);
+    });
+  });
 });
