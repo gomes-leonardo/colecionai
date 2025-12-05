@@ -1,35 +1,35 @@
-name: build-and-test
+name: CI Pipeline
 
-# Quando isso deve rodar?
 on:
   push:
-    branches: ["main"] # Sempre que der push na main
+    branches: ["main"]
   pull_request:
-    branches: ["main"] # Sempre que abrir um PR para main
+    branches: ["main"]
 
-# O que ele deve fazer?
 jobs:
   build-and-test:
-    runs-on: ubuntu-latest # Aluga uma máquina Ubuntu (Linux)
+    runs-on: ubuntu-latest
 
     steps:
-      # 1. Baixa o seu código na máquina
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # 2. Instala o Node.js v18 (ou a que vc usa)
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: "20"
-          cache: "npm" # Cacheia para ser mais rápido na próxima
+          cache: "npm"
 
-      # 3. Instala dependências (npm ci é mais rápido e seguro que npm install)
       - name: Install dependencies
         run: npm ci
 
-      # 4. Roda os testes
-      # A MÁGICA: Como fizemos testes unitários com Mocks,
-      # não precisamos subir o Docker/Postgres aqui! O teste roda isolado.
+      - name: Generate Prisma Client
+        run: npx prisma generate
+        env:
+          DATABASE_URL: "postgresql://dummy:dummy@localhost:5432/dummy"
+
       - name: Run Tests
         run: npm test
+        env:
+          DATABASE_URL: "postgresql://dummy:dummy@localhost:5432/dummy"
+          JWT_SECRET: "segredo-de-teste-do-ci"
