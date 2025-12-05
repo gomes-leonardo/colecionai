@@ -1,4 +1,5 @@
 import { Product } from "@prisma/client";
+import { randomUUID } from "crypto";
 import { ICreateProductDTO, IProductsRepository } from "../IProductsRepository";
 
 export class ProductsRepositoryInMemory implements IProductsRepository {
@@ -7,17 +8,23 @@ export class ProductsRepositoryInMemory implements IProductsRepository {
   async create({
     name,
     price,
+    description,
+    category,
+    condition,
     userId,
     banner,
   }: ICreateProductDTO): Promise<Product> {
     const product: Product = {
-      id: Math.floor(Math.random() * 1000) + 1,
+      id: randomUUID(),
       name,
       price,
-      user_id: userId,
+      user_id: randomUUID(),
       banner: banner || null,
       created_at: new Date(),
       updated_at: new Date(),
+      description: description,
+      category: category,
+      condition: condition,
     };
 
     this.products.push(product);
@@ -28,11 +35,11 @@ export class ProductsRepositoryInMemory implements IProductsRepository {
     return this.products;
   }
 
-  async listByUserId(userId: number): Promise<Product[]> {
+  async listByUserId(userId: string): Promise<Product[]> {
     return this.products.filter((product) => product.user_id === userId);
   }
 
-  async findById(id: number): Promise<Product | null> {
+  async findById(id: string): Promise<Product | null> {
     const product = this.products.find((product) => product.id === id);
     return product || null;
   }
@@ -45,7 +52,7 @@ export class ProductsRepositoryInMemory implements IProductsRepository {
     return product;
   }
 
-  async delete(id: number): Promise<void> {
+  async delete(id: string): Promise<void> {
     const findIndex = this.products.findIndex((product) => product.id === id);
 
     this.products.splice(findIndex, 1);

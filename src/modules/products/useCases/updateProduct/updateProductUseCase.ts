@@ -1,17 +1,29 @@
+import { ProductCategory, ProductCondition } from "@prisma/client";
 import { AppError } from "../../../../shared/errors/AppError";
 import { IProductsRepository } from "../../repositories/IProductsRepository";
 
 interface IRequest {
-  id: number;
+  id: string;
   name: string;
   price: number;
-  userId: number;
+  description: string;
+  condition: ProductCondition;
+  category: ProductCategory;
+  userId: string;
 }
 
 export class UpdateProductUseCase {
   constructor(private productsRepository: IProductsRepository) {}
 
-  async execute({ id, name, price, userId }: IRequest) {
+  async execute({
+    id,
+    name,
+    price,
+    userId,
+    description,
+    category,
+    condition,
+  }: IRequest) {
     const product = await this.productsRepository.findById(id);
 
     if (!product) {
@@ -27,6 +39,9 @@ export class UpdateProductUseCase {
 
     product.name = name;
     product.price = price;
+    product.category = category;
+    product.condition = condition;
+    product.description = description;
 
     const result = await this.productsRepository.update(product);
 

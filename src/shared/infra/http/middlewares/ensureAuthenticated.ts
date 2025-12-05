@@ -12,18 +12,25 @@ export function ensureAuthenticated(
   next: NextFunction
 ) {
   const authHeader = req.headers.authorization;
+  let token = null;
 
-  if (!authHeader) {
-    throw new AppError("Token missing", 401);
+  if (authHeader) {
+    [, token] = authHeader.split(" ");
   }
 
-  const [, token] = authHeader.split(" ");
+  if (!token && req.cookies && req.cookies.token) {
+    token = req.cookies.token;
+  }
+
+  if (!token) {
+    throw new AppError("Token missing", 401);
+  }
 
   try {
     const { sub } = verify(token, process.env.JWT_SECRET as string) as IPayload;
 
     req.user = {
-      id: Number(sub),
+      id: sub,
     };
 
     return next();

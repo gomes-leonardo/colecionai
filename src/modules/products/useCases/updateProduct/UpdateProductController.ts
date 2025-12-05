@@ -4,8 +4,8 @@ import { UpdateProductUseCase } from "./updateProductUseCase";
 
 export class UpdateProductController {
   async handle(req: Request, res: Response) {
-    const { name, price } = req.body;
-    const id = Number(req.params.id);
+    const { name, price, description, condition, category } = req.body;
+    const id = req.params.id;
     const userId = req.user.id;
 
     const repository = new PrismaProductsRepository();
@@ -15,6 +15,9 @@ export class UpdateProductController {
       id,
       name,
       price,
+      description,
+      condition,
+      category,
       userId,
     });
 

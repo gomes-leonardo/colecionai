@@ -4,7 +4,7 @@ import { CreateProductUseCase } from "./createProductUseCase";
 
 export class CreateProductController {
   async handle(req: Request, res: Response) {
-    const { name, price } = req.body;
+    const { name, price, description, condition, category } = req.body;
     const userId = req.user.id;
 
     const repository = new PrismaProductsRepository();
@@ -13,6 +13,9 @@ export class CreateProductController {
     const result = await createProductUseCase.execute({
       name,
       price,
+      description,
+      category,
+      condition,
       userId,
     });
 

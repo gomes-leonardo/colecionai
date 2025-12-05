@@ -6,6 +6,9 @@ export class PrismaProductsRepository implements IProductsRepository {
   async create({
     name,
     price,
+    description,
+    category,
+    condition,
     userId,
     banner,
   }: ICreateProductDTO): Promise<Product> {
@@ -13,6 +16,9 @@ export class PrismaProductsRepository implements IProductsRepository {
       data: {
         name,
         price,
+        description,
+        category,
+        condition,
         user_id: userId,
         banner,
       },
@@ -22,12 +28,12 @@ export class PrismaProductsRepository implements IProductsRepository {
   async list(): Promise<Product[]> {
     return await prisma.product.findMany();
   }
-  async listByUserId(userId: number): Promise<Product[]> {
+  async listByUserId(userId: string): Promise<Product[]> {
     return await prisma.product.findMany({
       where: { user_id: userId },
     });
   }
-  async findById(id: number): Promise<Product | null> {
+  async findById(id: string): Promise<Product | null> {
     return await prisma.product.findUnique({
       where: { id },
     });
@@ -43,7 +49,7 @@ export class PrismaProductsRepository implements IProductsRepository {
       },
     });
   }
-  async delete(id: number): Promise<void> {
+  async delete(id: string): Promise<void> {
     await prisma.product.delete({
       where: { id },
     });

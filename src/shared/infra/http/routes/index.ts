@@ -8,11 +8,17 @@ import { ListUserProductsController } from "../../../../modules/products/useCase
 import { UpdateProductController } from "../../../../modules/products/useCases/updateProduct/UpdateProductController";
 import { DeleteProductController } from "../../../../modules/products/useCases/deleteProduct/DeleteProductController";
 import { UpdateProductImageController } from "../../../../modules/products/useCases/updateBannerProduct/UpdateProductImageController";
+import { createProductSchema } from "../../../../schemas/productSchema";
+import { createUserSchema } from "../../../../schemas/userSchema";
+import { sessionSchema } from "../../../../schemas/sessionSchema";
 
 import { CreateUserController } from "../../../../modules/accounts/useCases/createUser/CreateUserController";
 import { AuthenticateUserController } from "../../../../modules/accounts/useCases/authenticateUser/AuthenticateUserController";
+import { LoadUserProfileController } from "../../../../modules/accounts/useCases/loadUserProfile/LoadUserProfileController";
+import { LogoutUserController } from "../../../../modules/accounts/useCases/logoutUser/LogoutUserController";
 
 import { ensureAuthenticated } from "../middlewares/ensureAuthenticated";
+import { validateResource } from "../middlewares/validateResource";
 
 const router = Router();
 
@@ -25,17 +31,44 @@ const updateProductImageController = new UpdateProductImageController();
 
 const createUserController = new CreateUserController();
 const authenticateUserController = new AuthenticateUserController();
+const loadUserProfileController = new LoadUserProfileController();
+const logoutUserController = new LogoutUserController();
 
 const upload = multer(uploadConfig);
 
 router.post("/users", createUserController.handle);
-router.post("/sessions", authenticateUserController.handle);
+router.post(
+  "/sessions",
+  validateResource(sessionSchema),
+  authenticateUserController.handle
+);
+router.post("/logout", ensureAuthenticated, logoutUserController.handle);
+
+router.get("/me", ensureAuthenticated, loadUserProfileController.handle);
 
 router.get("/products", listProductsController.handle);
-router.get("/products/me", ensureAuthenticated, listUserProductsController.handle);
-router.post("/products", ensureAuthenticated, createProductController.handle);
-router.delete("/products/:id", ensureAuthenticated, deleteProductController.handle);
-router.put("/products/:id", ensureAuthenticated, updateProductController.handle);
+router.get(
+  "/products/me",
+  ensureAuthenticated,
+  listUserProductsController.handle
+);
+router.post(
+  "/products",
+  ensureAuthenticated,
+  validateResource(createProductSchema),
+  createProductController.handle
+);
+router.delete(
+  "/products/:id",
+  ensureAuthenticated,
+  deleteProductController.handle
+);
+router.put(
+  "/products/:id",
+  ensureAuthenticated,
+  validateResource(createProductSchema),
+  updateProductController.handle
+);
 router.patch(
   "/products/:id/image",
   ensureAuthenticated,

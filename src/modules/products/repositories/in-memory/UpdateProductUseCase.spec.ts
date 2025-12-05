@@ -1,3 +1,4 @@
+import { randomUUID } from "crypto";
 import { AppError } from "../../../../shared/errors/AppError";
 import { CreateProductUseCase } from "../../useCases/createProduct/createProductUseCase";
 import { UpdateProductUseCase } from "../../useCases/updateProduct/updateProductUseCase";
@@ -14,20 +15,32 @@ describe("Update Product Info", () => {
     createProductUseCase = new CreateProductUseCase(productRepositoryInMemory);
   });
 
+  const userId = randomUUID();
+
   it("should be able to update a product", async () => {
     const oldProduct = await createProductUseCase.execute({
       name: "Original",
       price: 500,
-      userId: 1,
+      description: "Descrição",
+      category: "MANGA",
+      condition: "USED",
+      userId: userId,
     });
 
     const newProduct = await updateProductUseCase.execute({
       id: oldProduct.id,
       name: "Editado",
       price: 1000,
-      userId: 1,
+      description: "Descrição",
+      category: "MANGA",
+      condition: "USED",
+      userId: oldProduct.user_id,
     });
+    const uuidRegex =
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
+    expect(newProduct.id).toMatch(uuidRegex);
+    expect(newProduct.user_id).toMatch(uuidRegex);
     expect(newProduct.name).toEqual("Editado");
     expect(newProduct.price).toEqual(1000);
   });
@@ -35,13 +48,19 @@ describe("Update Product Info", () => {
   it("should not be able to update a non-existing product", async () => {
     await expect(
       updateProductUseCase.execute({
-        id: 9999,
+        id: "9999",
         name: "Test",
         price: 100,
-        userId: 1,
+        description: "Descrição",
+        category: "MANGA",
+        condition: "USED",
+        userId: userId,
       })
     ).rejects.toEqual(
-      expect.objectContaining({ message: "Produto não encontrado" })
+      expect.objectContaining({
+        message: "Produto não encontrado",
+        statusCode: 404,
+      })
     );
   });
 
@@ -49,7 +68,10 @@ describe("Update Product Info", () => {
     const product = await createProductUseCase.execute({
       name: "Original",
       price: 500,
-      userId: 1,
+      description: "Descrição",
+      category: "MANGA",
+      condition: "USED",
+      userId: userId,
     });
 
     await expect(
@@ -57,11 +79,15 @@ describe("Update Product Info", () => {
         id: product.id,
         name: "Hacked",
         price: 0,
-        userId: 2,
+        description: "Descrição",
+        category: "MANGA",
+        condition: "USED",
+        userId: "2",
       })
     ).rejects.toEqual(
       expect.objectContaining({
         message: "Você não tem permissão para editar este produto",
+        statusCode: 403,
       })
     );
   });

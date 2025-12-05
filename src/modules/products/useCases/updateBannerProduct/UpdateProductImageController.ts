@@ -5,7 +5,7 @@ import { UpdateProductImageUseCase } from "./updateBannerProductUseCase";
 
 export class UpdateProductImageController {
   async handle(req: Request, res: Response) {
-    const id = Number(req.params.id);
+    const id = req.params.id;
     const userId = req.user.id;
 
     if (!req.file) {
