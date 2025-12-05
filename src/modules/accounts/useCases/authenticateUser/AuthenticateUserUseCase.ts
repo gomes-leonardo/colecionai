@@ -25,9 +25,13 @@ export class AuthenticateUserUseCase {
       throw new AppError("Email ou senha incorretos.", 401);
     }
 
+    if (!process.env.JWT_SECRET) {
+      throw new Error("JWT_SECRET is not defined!");
+    }
+
     const token = sign({}, process.env.JWT_SECRET as string, {
       subject: String(user.id),
-      expiresIn: "1d",
+      expiresIn: "30d",
     });
 
     return {

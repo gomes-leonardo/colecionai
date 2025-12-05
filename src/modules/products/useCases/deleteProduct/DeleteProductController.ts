@@ -4,7 +4,7 @@ import { DeleteProductUseCase } from "./deleteProductUseCase";
 
 export class DeleteProductController {
   async handle(req: Request, res: Response) {
-    const id = Number(req.params.id);
+    const id = req.params.id;
     const userId = req.user.id;
 
     const repository = new PrismaProductsRepository();

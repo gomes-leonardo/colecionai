@@ -18,7 +18,10 @@ describe("List products by user", () => {
     const product = await productRepositoryInMemory.create({
       name: "Meu produto",
       price: 100,
-      userId: 2,
+      description: "Descrição",
+      category: "MANGA",
+      condition: "USED",
+      userId: "2",
       banner: "foto.jpg",
     });
 

@@ -6,14 +6,40 @@ datasource db {
   provider = "postgresql"
 }
 
+enum ProductCondition {
+  NEW
+  USED
+  OPEN_BOX
+}
+
+enum ProductCategory {
+  ACTION_FIGURES
+  COLLECTIBLE_STATUES
+  FUNKO_POP
+  TRADING_CARDS
+  COMIC_BOOKS
+  MANGA
+  RETRO_GAMES
+  MINIATURES
+  MODEL_KITS
+  MOVIES_TV_COLLECTIBLES
+  ANIME_COLLECTIBLES
+  ART_BOOKS
+  RARE_COLLECTIBLES
+}
+
+
 model Product {
-  id         Int      @id @default(autoincrement())
-  name       String   @db.VarChar(255)
-  price      Int
-  user_id    Int
-  banner     String?  @db.VarChar(255)
-  created_at DateTime @default(now()) @db.Timestamp(6)
-  updated_at DateTime @updatedAt 
+  id          String   @id @default(uuid())
+  name        String   @db.VarChar(255)
+  price       Int
+  description String   @db.Text 
+  category    ProductCategory
+  condition   ProductCondition 
+  user_id     String   
+  banner      String?  @db.VarChar(255)
+  created_at  DateTime @default(now()) @db.Timestamp(6)
+  updated_at  DateTime @updatedAt 
 
   user       User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
@@ -21,7 +47,7 @@ model Product {
 }
 
 model User {
-  id         Int       @id @default(autoincrement())
+  id         String   @id @default(uuid())
   name       String    @db.VarChar(255) 
   email      String    @unique @db.VarChar(255)
   password   String    @db.VarChar(255)

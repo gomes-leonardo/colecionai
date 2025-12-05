@@ -5,8 +5,8 @@ import { IProductsRepository } from "../../repositories/IProductsRepository";
 import { AppError } from "../../../../shared/errors/AppError";
 
 interface IRequest {
-  productId: number;
-  userId: number;
+  productId: string;
+  userId: string;
   imageFilename: string;
 }
 

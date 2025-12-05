@@ -7,7 +7,7 @@ export class UsersRepositoryInMemory implements IUserRepository {
 
   async create({ name, email, password }: IUserCreateDTO): Promise<User> {
     const user: User = {
-      id: 1,
+      id: "1",
       name,
       email,
       password,
@@ -20,6 +20,11 @@ export class UsersRepositoryInMemory implements IUserRepository {
 
   async findByEmail(email: string): Promise<User | null> {
     const user = this.users.find((user) => user.email === email);
+    return user || null;
+  }
+
+  async findById(id: string): Promise<User | null> {
+    const user = this.users.find((user) => user.id === id);
     return user || null;
   }
 }

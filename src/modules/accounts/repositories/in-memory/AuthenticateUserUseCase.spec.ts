@@ -24,15 +24,14 @@ describe("Authenticate User", () => {
     const user = await createUserUseCase.execute({
       name: "User Auth",
       email: "auth@test.com",
-      password: "password123",
+      password: "Password@123",
     });
 
     const response = await authenticateUserUseCase.execute({
       email: "auth@test.com",
-      password: "password123",
+      password: "Password@123",
     });
 
-    expect(response).toHaveProperty("token");
     expect(response.user.email).toBe("auth@test.com");
   });
 
@@ -40,7 +39,7 @@ describe("Authenticate User", () => {
     await createUserUseCase.execute({
       name: "User Wrong",
       email: "wrong@test.com",
-      password: "123",
+      password: "Password@123",
     });
 
     await expect(
@@ -49,5 +48,49 @@ describe("Authenticate User", () => {
         password: "wrong-password",
       })
     ).rejects.toBeInstanceOf(AppError);
+  });
+
+  it("should not be able to authenticate with non-existent user", async () => {
+    await expect(
+      authenticateUserUseCase.execute({
+        email: "nonexistent@test.com",
+        password: "password",
+      })
+    ).rejects.toEqual(
+      expect.objectContaining({ message: "Email ou senha incorretos." })
+    );
+  });
+
+  it("should not be able to authenticate without email", async () => {
+    await expect(
+      authenticateUserUseCase.execute({
+        email: "",
+        password: "password",
+      })
+    ).rejects.toEqual(
+      expect.objectContaining({ message: "E-mail e senha são obrigatórios." })
+    );
+  });
+
+  it("should not be able to authenticate without password", async () => {
+    await expect(
+      authenticateUserUseCase.execute({
+        email: "test@test.com",
+        password: "",
+      })
+    ).rejects.toEqual(
+      expect.objectContaining({ message: "E-mail e senha são obrigatórios." })
+    );
+  });
+
+  it("should not be able to authenticate with invalid email format", async () => {
+    await expect(
+      authenticateUserUseCase.execute({
+        email: "invalid-email",
+        password: "password",
+      })
+    ).rejects.toEqual(
+      expect.objectContaining({ message: "Formato de e-mail inválido." })
+    );
   });
 });

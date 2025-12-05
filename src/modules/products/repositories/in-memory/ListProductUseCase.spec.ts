@@ -16,7 +16,10 @@ describe("List all products", () => {
     await productRepositoryInMemory.create({
       name: "Produto Teste",
       price: 100,
-      userId: 1,
+      description: "Descrição",
+      category: "COMIC_BOOKS",
+      condition: "NEW",
+      userId: "1",
       banner: "foto.jpg",
     });
 
