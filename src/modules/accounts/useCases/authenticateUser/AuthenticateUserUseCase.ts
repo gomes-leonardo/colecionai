@@ -1,10 +1,11 @@
 import { compare } from "bcryptjs";
 import { sign } from "jsonwebtoken";
-import { pool } from "../db";
-import { AppError } from "../errors/AppError";
+import { AppError } from "../../../../shared/errors/AppError";
+import { IUserRepository } from "../../repositories/IUserRepository";
 
-export class AuthenticateUserService {
-  async create(email: string, password: string) {
+export class AuthenticateUserUseCase {
+  constructor(private userRepository: IUserRepository) {}
+  async execute({ email, password }: { email: string; password: string }) {
     if (!email || !password) {
       throw new AppError("E-mail e senha são obrigatórios.", 400);
     }
@@ -13,16 +14,11 @@ export class AuthenticateUserService {
       throw new AppError("Formato de e-mail inválido.", 400);
     }
 
-    const { rows, rowCount } = await pool.query(
-      "SELECT * FROM users WHERE email = $1",
-      [email]
-    );
+    const user = await this.userRepository.findByEmail(email);
 
-    if (rowCount === 0 || !rowCount) {
+    if (!user) {
       throw new AppError("Email ou senha incorretos.", 401);
     }
-
-    const user = rows[0];
 
     const passwordMatched = await compare(password, user.password);
     if (!passwordMatched) {
