@@ -3,15 +3,19 @@ import path from "path";
 import uploadConfig from "../../../../config/upload";
 import { IProductsRepository } from "../../repositories/IProductsRepository";
 import { AppError } from "../../../../shared/errors/AppError";
+import { injectable, inject } from "tsyringe";
 
 interface IRequest {
   productId: string;
   userId: string;
   imageFilename: string;
 }
-
+@injectable()
 export class UpdateProductImageUseCase {
-  constructor(private productsRepository: IProductsRepository) {}
+  constructor(
+    @inject("ProductsRepository")
+    private productsRepository: IProductsRepository
+  ) {}
 
   async execute({ productId, userId, imageFilename }: IRequest) {
     const product = await this.productsRepository.findById(productId);

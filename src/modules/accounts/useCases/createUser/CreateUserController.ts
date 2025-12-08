@@ -1,19 +1,14 @@
 import { Request, Response } from "express";
+import { container } from "tsyringe";
 import { CreateUserUseCase } from "./createUserUseCase";
-import { PrismaUsersRepository } from "../../repositories/prisma/PrismaUsersRepository";
 
 export class CreateUserController {
-  async handle(req: Request, res: Response) {
+  async handle(req: Request, res: Response): Promise<Response> {
     const { name, email, password } = req.body;
-    const userRepository = new PrismaUsersRepository();
-    const createUserUseCase = new CreateUserUseCase(userRepository);
 
-    const result = await createUserUseCase.execute({
-      name,
-      email,
-      password,
-    });
+    const createUserUseCase = container.resolve(CreateUserUseCase);
+    await createUserUseCase.execute({ name, email, password });
 
-    return res.status(201).json(result);
+    return res.status(201).send();
   }
 }

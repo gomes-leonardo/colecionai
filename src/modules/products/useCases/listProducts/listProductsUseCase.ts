@@ -1,7 +1,12 @@
+import { injectable, inject } from "tsyringe";
 import { IProductsRepository } from "../../repositories/IProductsRepository";
 
+@injectable()
 export class ListAllProductsUseCase {
-  constructor(private productsRepository: IProductsRepository) {}
+  constructor(
+    @inject("ProductsRepository")
+    private productsRepository: IProductsRepository
+  ) {}
 
   async execute() {
     const result = await this.productsRepository.list();

@@ -4,9 +4,14 @@ import {
   IUserCreateDTO,
   IUserRepository,
 } from "../../repositories/IUserRepository";
+import { inject, injectable } from "tsyringe";
 
+@injectable()
 export class CreateUserUseCase {
-  constructor(private userRepository: IUserRepository) {}
+  constructor(
+    @inject("UsersRepository")
+    private usersRepository: IUserRepository
+  ) {}
 
   async execute({ name, email, password }: IUserCreateDTO) {
     if (!name || !email || !password) {
@@ -39,15 +44,18 @@ export class CreateUserUseCase {
     }
 
     if (!/[^A-Za-z0-9]/.test(password)) {
-      throw new AppError("Senha deve conter ao menos 1 caractere especial", 400);
+      throw new AppError(
+        "Senha deve conter ao menos 1 caractere especial",
+        400
+      );
     }
 
-    const userAlreadyExists = await this.userRepository.findByEmail(email);
+    const userAlreadyExists = await this.usersRepository.findByEmail(email);
     if (userAlreadyExists) {
       throw new AppError("Email já cadastrado.", 409);
     }
     const passwordHash = await hash(password, 8);
-    const user = await this.userRepository.create({
+    const user = await this.usersRepository.create({
       name,
       email,
       password: passwordHash,

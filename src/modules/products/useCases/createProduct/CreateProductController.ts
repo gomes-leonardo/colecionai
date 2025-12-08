@@ -1,14 +1,13 @@
 import { Request, Response } from "express";
-import { PrismaProductsRepository } from "../../repositories/prisma/PrismaProductsRepository";
 import { CreateProductUseCase } from "./createProductUseCase";
+import { container } from "tsyringe";
 
 export class CreateProductController {
   async handle(req: Request, res: Response) {
     const { name, price, description, condition, category } = req.body;
     const userId = req.user.id;
 
-    const repository = new PrismaProductsRepository();
-    const createProductUseCase = new CreateProductUseCase(repository);
+    const createProductUseCase = container.resolve(CreateProductUseCase);
 
     const result = await createProductUseCase.execute({
       name,

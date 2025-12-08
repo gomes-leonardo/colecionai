@@ -2,9 +2,14 @@ import { compare } from "bcryptjs";
 import { sign } from "jsonwebtoken";
 import { AppError } from "../../../../shared/errors/AppError";
 import { IUserRepository } from "../../repositories/IUserRepository";
+import { inject, injectable } from "tsyringe";
 
+@injectable()
 export class AuthenticateUserUseCase {
-  constructor(private userRepository: IUserRepository) {}
+  constructor(
+    @inject("UserRepository")
+    private userRepository: IUserRepository
+  ) {}
   async execute({ email, password }: { email: string; password: string }) {
     if (!email || !password) {
       throw new AppError("E-mail e senha são obrigatórios.", 400);

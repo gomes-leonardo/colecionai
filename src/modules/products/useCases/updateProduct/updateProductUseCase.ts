@@ -1,6 +1,7 @@
 import { ProductCategory, ProductCondition } from "@prisma/client";
 import { AppError } from "../../../../shared/errors/AppError";
 import { IProductsRepository } from "../../repositories/IProductsRepository";
+import { injectable, inject } from "tsyringe";
 
 interface IRequest {
   id: string;
@@ -12,8 +13,12 @@ interface IRequest {
   userId: string;
 }
 
+@injectable()
 export class UpdateProductUseCase {
-  constructor(private productsRepository: IProductsRepository) {}
+  constructor(
+    @inject("ProductsRepository")
+    private productsRepository: IProductsRepository
+  ) {}
 
   async execute({
     id,

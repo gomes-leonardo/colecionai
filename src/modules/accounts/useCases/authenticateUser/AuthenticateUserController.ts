@@ -2,12 +2,13 @@ import { Request, Response } from "express";
 import { AppError } from "../../../../shared/errors/AppError";
 import { AuthenticateUserUseCase } from "./AuthenticateUserUseCase";
 import { PrismaUsersRepository } from "../../repositories/prisma/PrismaUsersRepository";
+import { container } from "tsyringe";
 
 export class AuthenticateUserController {
   async handle(req: Request, res: Response) {
     const { email, password } = req.body;
-    const userRepository = new PrismaUsersRepository();
-    const authenticateUserUseCase = new AuthenticateUserUseCase(userRepository);
+
+    const authenticateUserUseCase = container.resolve(AuthenticateUserUseCase);
 
     try {
       const { user, token } = await authenticateUserUseCase.execute({

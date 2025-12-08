@@ -22,7 +22,6 @@ import { LogoutUserController } from "../../../../modules/accounts/useCases/logo
 
 import { ensureAuthenticated } from "../middlewares/ensureAuthenticated";
 import { validateResource } from "../middlewares/validateResource";
-import { TestEmailController } from "../../../../modules/accounts/useCases/logoutUser/TestEmailController";
 import { CreateForgotPasswordTokenController } from "../../../../modules/accounts/useCases/createForgotPasswordToken/CreateForgotPasswordTokenController";
 import { ResetPasswordController } from "../../../../modules/accounts/useCases/resetPassword/ResetPasswordController";
 
@@ -34,7 +33,6 @@ const listUserProductsController = new ListUserProductsController();
 const updateProductController = new UpdateProductController();
 const deleteProductController = new DeleteProductController();
 const updateProductImageController = new UpdateProductImageController();
-const testEmailController = new TestEmailController();
 const resetPasswordController = new ResetPasswordController();
 
 const createUserController = new CreateUserController();
@@ -57,7 +55,6 @@ router.post(
 );
 router.post("/logout", ensureAuthenticated, logoutUserController.handle);
 router.get("/me", ensureAuthenticated, loadUserProfileController.handle);
-router.post("/email-test", testEmailController.handle);
 
 router.get("/products", listProductsController.handle);
 router.get(
