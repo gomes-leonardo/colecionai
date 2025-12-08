@@ -9,7 +9,10 @@ import { UpdateProductController } from "../../../../modules/products/useCases/u
 import { DeleteProductController } from "../../../../modules/products/useCases/deleteProduct/DeleteProductController";
 import { UpdateProductImageController } from "../../../../modules/products/useCases/updateBannerProduct/UpdateProductImageController";
 import { createProductSchema } from "../../../../schemas/productSchema";
-import { createUserSchema } from "../../../../schemas/userSchema";
+import {
+  createUserSchema,
+  updateUserSchema,
+} from "../../../../schemas/userSchema";
 import { sessionSchema } from "../../../../schemas/sessionSchema";
 
 import { CreateUserController } from "../../../../modules/accounts/useCases/createUser/CreateUserController";
@@ -19,6 +22,9 @@ import { LogoutUserController } from "../../../../modules/accounts/useCases/logo
 
 import { ensureAuthenticated } from "../middlewares/ensureAuthenticated";
 import { validateResource } from "../middlewares/validateResource";
+import { TestEmailController } from "../../../../modules/accounts/useCases/logoutUser/TestEmailController";
+import { CreateForgotPasswordTokenController } from "../../../../modules/accounts/useCases/createForgotPasswordToken/CreateForgotPasswordTokenController";
+import { ResetPasswordController } from "../../../../modules/accounts/useCases/resetPassword/ResetPasswordController";
 
 const router = Router();
 
@@ -28,23 +34,30 @@ const listUserProductsController = new ListUserProductsController();
 const updateProductController = new UpdateProductController();
 const deleteProductController = new DeleteProductController();
 const updateProductImageController = new UpdateProductImageController();
+const testEmailController = new TestEmailController();
+const resetPasswordController = new ResetPasswordController();
 
 const createUserController = new CreateUserController();
 const authenticateUserController = new AuthenticateUserController();
 const loadUserProfileController = new LoadUserProfileController();
 const logoutUserController = new LogoutUserController();
+const sendPasswordToken = new CreateForgotPasswordTokenController();
 
 const upload = multer(uploadConfig);
 
-router.post("/users", createUserController.handle);
+router.post(
+  "/users",
+  validateResource(createUserSchema),
+  createUserController.handle
+);
 router.post(
   "/sessions",
   validateResource(sessionSchema),
   authenticateUserController.handle
 );
 router.post("/logout", ensureAuthenticated, logoutUserController.handle);
-
 router.get("/me", ensureAuthenticated, loadUserProfileController.handle);
+router.post("/email-test", testEmailController.handle);
 
 router.get("/products", listProductsController.handle);
 router.get(
@@ -74,6 +87,13 @@ router.patch(
   ensureAuthenticated,
   upload.single("image"),
   updateProductImageController.handle
+);
+
+router.post("/forgot-password", sendPasswordToken.handle);
+router.post(
+  "/reset-password",
+  validateResource(updateUserSchema),
+  resetPasswordController.handle
 );
 
 export default router;

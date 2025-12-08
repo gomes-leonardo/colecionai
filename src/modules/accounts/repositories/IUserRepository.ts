@@ -8,6 +8,7 @@ export interface IUserCreateDTO {
 
 export interface IUserRepository {
   create(data: IUserCreateDTO): Promise<User>;
+  update(user: User): Promise<User>;
   findByEmail(email: string): Promise<User | null>;
   findById(id: string): Promise<User | null>;
 }

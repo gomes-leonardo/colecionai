@@ -3,6 +3,9 @@ import { randomUUID } from "crypto";
 import { IUserCreateDTO, IUserRepository } from "../IUserRepository";
 
 export class UsersRepositoryInMemory implements IUserRepository {
+  update(user: User): Promise<User> {
+    throw new Error("Method not implemented.");
+  }
   users: User[] = [];
 
   async create({ name, email, password }: IUserCreateDTO): Promise<User> {
