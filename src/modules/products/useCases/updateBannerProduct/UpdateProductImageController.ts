@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { AppError } from "../../../../shared/errors/AppError";
 import { PrismaProductsRepository } from "../../repositories/prisma/PrismaProductsRepository";
 import { UpdateProductImageUseCase } from "./updateBannerProductUseCase";
+import { container } from "tsyringe";
 
 export class UpdateProductImageController {
   async handle(req: Request, res: Response) {
@@ -14,8 +15,7 @@ export class UpdateProductImageController {
 
     const imageFilename = req.file.filename;
 
-    const repository = new PrismaProductsRepository();
-    const updateImageUseCase = new UpdateProductImageUseCase(repository);
+    const updateImageUseCase = container.resolve(UpdateProductImageUseCase);
 
     const result = await updateImageUseCase.execute({
       productId: id,

@@ -1,5 +1,7 @@
+import "reflect-metadata";
 import express from "express";
 import router from "./routes";
+import "../../../shared/container/index";
 import cors from "cors";
 import { globalError } from "./middlewares/globalError";
 import cookieParser from "cookie-parser";

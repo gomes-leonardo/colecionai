@@ -3,9 +3,13 @@ import { IUserRepository } from "../../repositories/IUserRepository";
 import { AppError } from "../../../../shared/errors/AppError";
 import { emailQueue } from "../../../../job/queue";
 import { IUsersTokensRepository } from "../../repositories/IUserTokensRepository";
+import { inject, injectable } from "tsyringe";
 
+@injectable()
 export class CreateForgotPasswordTokenUseCase {
   constructor(
+    @inject("UsesTokenRepository")
+    @inject("UsersRepository")
     private usersTokensRepository: IUsersTokensRepository,
     private userRepository: IUserRepository
   ) {}

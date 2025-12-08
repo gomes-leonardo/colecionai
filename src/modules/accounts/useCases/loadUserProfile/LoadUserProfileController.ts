@@ -1,14 +1,13 @@
 import { Request, Response } from "express";
 import { AppError } from "../../../../shared/errors/AppError";
 import { LoadUserProfileUseCase } from "./LoadUserProfileUseCase";
-import { PrismaUsersRepository } from "../../repositories/prisma/PrismaUsersRepository";
+import { container } from "tsyringe";
 
 export class LoadUserProfileController {
   async handle(req: Request, res: Response) {
     const { id } = req.user;
 
-    const userRepository = new PrismaUsersRepository();
-    const loadUserProfileUseCase = new LoadUserProfileUseCase(userRepository);
+    const loadUserProfileUseCase = container.resolve(LoadUserProfileUseCase);
 
     try {
       const { user, token } = await loadUserProfileUseCase.execute(id);
@@ -27,7 +26,9 @@ export class LoadUserProfileController {
         return res.status(error.statusCode).json({ error: error.message });
       }
       console.error(error);
-      return res.status(500).json({ error: "Erro ao carregar perfil do usuário" });
+      return res
+        .status(500)
+        .json({ error: "Erro ao carregar perfil do usuário" });
     }
   }
 }
