@@ -54,7 +54,20 @@ model User {
   created_at DateTime  @default(now()) @db.Timestamp(6)
   
   products   Product[]
+  usertoken  UserToken[]
 
   @@map("users")
+}
+
+model UserToken {
+  id              String    @id @default(uuid())
+  refresh_token   String    
+  user_id         String
+  created_at      DateTime  @default(now()) @db.Timestamp(6)
+  expires_at      DateTime
+
+  user            User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@map("usertoken")
 }
 

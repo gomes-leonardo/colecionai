@@ -19,3 +19,15 @@ export const createUserSchema = z.object({
       .regex(/[^A-Za-z0-9]/, "Senha deve conter ao menos 1 caractere especial"),
   }),
 });
+
+export const updateUserSchema = z.object({
+  body: z.object({
+    password: z
+      .string({ error: "Senha é obrigatória" })
+      .min(8, "Senha deve ter no mínimo 8 caracteres")
+      .regex(/[A-Z]/, "Senha deve conter ao menos 1 letra maiúscula")
+      .regex(/[a-z]/, "Senha deve conter ao menos 1 letra minúscula")
+      .regex(/[0-9]/, "Senha deve conter ao menos 1 número")
+      .regex(/[^A-Za-z0-9]/, "Senha deve conter ao menos 1 caractere especial"),
+  }),
+});
