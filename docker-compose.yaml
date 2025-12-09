@@ -85,7 +85,7 @@ services:
       - SMTP_PASS=${SMTP_PASS:-mail_pass}
       - JWT_SECRET=${JWT_SECRET:-changeme}
       - NODE_ENV=${NODE_ENV:-development}
-    command: npm run worker
+    command: sh -c "npm run build && npx prisma generate && npm run worker:prod"
 
 volumes:
   pgdata:
