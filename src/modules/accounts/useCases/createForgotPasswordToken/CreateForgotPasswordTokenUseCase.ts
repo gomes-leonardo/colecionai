@@ -8,9 +8,9 @@ import { inject, injectable } from "tsyringe";
 @injectable()
 export class CreateForgotPasswordTokenUseCase {
   constructor(
-    @inject("UsesTokenRepository")
-    @inject("UsersRepository")
+    @inject("UsersTokenRepository")
     private usersTokensRepository: IUsersTokensRepository,
+    @inject("UsersRepository")
     private userRepository: IUserRepository
   ) {}
 

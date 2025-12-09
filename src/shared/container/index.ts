@@ -6,6 +6,8 @@ import { IProductsRepository } from "../../modules/products/repositories/IProduc
 import { PrismaProductsRepository } from "../../modules/products/repositories/prisma/PrismaProductsRepository";
 import { IUsersTokensRepository } from "../../modules/accounts/repositories/IUserTokensRepository";
 import { PrismaUserTokenRepository } from "../../modules/accounts/repositories/prisma/PrismaUserTokenRepository";
+import { ICacheProvider } from "./providers/CacheProvider/ICacheProvider";
+import { RedisCacheProvider } from "./providers/CacheProvider/Implementations/RedisCacheProvider";
 
 container.registerSingleton<IUserRepository>(
   "UsersRepository",
@@ -20,4 +22,9 @@ container.registerSingleton<IProductsRepository>(
 container.registerSingleton<IUsersTokensRepository>(
   "UsersTokenRepository",
   PrismaUserTokenRepository
+);
+
+container.registerSingleton<ICacheProvider>(
+  "CacheProvider",
+  RedisCacheProvider
 );

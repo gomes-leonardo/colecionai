@@ -3,16 +3,27 @@ import { AppError } from "../../../../shared/errors/AppError";
 import { CreateProductUseCase } from "../../useCases/createProduct/createProductUseCase";
 import { UpdateProductUseCase } from "../../useCases/updateProduct/updateProductUseCase";
 import { ProductsRepositoryInMemory } from "./ProductsRepositoryInMemory";
+import { InMemoryCacheProvider } from "../../../../shared/container/providers/CacheProvider/Implementations/InMemoryCacheProvider";
 
 let updateProductUseCase: UpdateProductUseCase;
 let productRepositoryInMemory: ProductsRepositoryInMemory;
 let createProductUseCase: CreateProductUseCase;
+let cacheProvider: InMemoryCacheProvider;
 
 describe("Update Product Info", () => {
   beforeEach(() => {
     productRepositoryInMemory = new ProductsRepositoryInMemory();
-    updateProductUseCase = new UpdateProductUseCase(productRepositoryInMemory);
-    createProductUseCase = new CreateProductUseCase(productRepositoryInMemory);
+
+    productRepositoryInMemory = new ProductsRepositoryInMemory();
+    cacheProvider = new InMemoryCacheProvider();
+    updateProductUseCase = new UpdateProductUseCase(
+      productRepositoryInMemory,
+      cacheProvider
+    );
+    createProductUseCase = new CreateProductUseCase(
+      productRepositoryInMemory,
+      cacheProvider
+    );
   });
 
   const userId = randomUUID();

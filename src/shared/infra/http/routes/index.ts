@@ -24,12 +24,14 @@ import { ensureAuthenticated } from "../middlewares/ensureAuthenticated";
 import { validateResource } from "../middlewares/validateResource";
 import { CreateForgotPasswordTokenController } from "../../../../modules/accounts/useCases/createForgotPasswordToken/CreateForgotPasswordTokenController";
 import { ResetPasswordController } from "../../../../modules/accounts/useCases/resetPassword/ResetPasswordController";
+import { ListProductsDetailController } from "../../../../modules/products/useCases/listProductDetails/ListProductsController";
 
 const router = Router();
 
 const createProductController = new CreateProductController();
 const listProductsController = new ListProductsController();
 const listUserProductsController = new ListUserProductsController();
+const listUserProductDetail = new ListProductsDetailController();
 const updateProductController = new UpdateProductController();
 const deleteProductController = new DeleteProductController();
 const updateProductImageController = new UpdateProductImageController();
@@ -55,13 +57,15 @@ router.post(
 );
 router.post("/logout", ensureAuthenticated, logoutUserController.handle);
 router.get("/me", ensureAuthenticated, loadUserProfileController.handle);
-
-router.get("/products", listProductsController.handle);
 router.get(
   "/products/me",
   ensureAuthenticated,
   listUserProductsController.handle
 );
+router.get("/products/:id", listUserProductDetail.handle);
+
+router.get("/products", listProductsController.handle);
+
 router.post(
   "/products",
   ensureAuthenticated,

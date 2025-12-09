@@ -2,6 +2,7 @@ import { ProductCategory, ProductCondition } from "@prisma/client";
 import { AppError } from "../../../../shared/errors/AppError";
 import { IProductsRepository } from "../../repositories/IProductsRepository";
 import { injectable, inject } from "tsyringe";
+import { ICacheProvider } from "../../../../shared/container/providers/CacheProvider/ICacheProvider";
 
 interface IRequest {
   id: string;
@@ -17,7 +18,9 @@ interface IRequest {
 export class UpdateProductUseCase {
   constructor(
     @inject("ProductsRepository")
-    private productsRepository: IProductsRepository
+    private productsRepository: IProductsRepository,
+    @inject("CacheProvider")
+    private cacheProvider: ICacheProvider
   ) {}
 
   async execute({
@@ -41,6 +44,9 @@ export class UpdateProductUseCase {
         403
       );
     }
+
+    await this.cacheProvider.invalidate(`product-details:${product.id}`);
+    await this.cacheProvider.invalidatePrefix("products-list");
 
     product.name = name;
     product.price = price;

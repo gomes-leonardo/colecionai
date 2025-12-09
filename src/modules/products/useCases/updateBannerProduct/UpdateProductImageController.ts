@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { AppError } from "../../../../shared/errors/AppError";
 import { PrismaProductsRepository } from "../../repositories/prisma/PrismaProductsRepository";
-import { UpdateProductImageUseCase } from "./updateBannerProductUseCase";
+import { UpdateProductImageUseCase } from "./updateProductProductUseCase";
 import { container } from "tsyringe";
 
 export class UpdateProductImageController {

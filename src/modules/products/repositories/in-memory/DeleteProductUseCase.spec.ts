@@ -3,16 +3,25 @@ import { AppError } from "../../../../shared/errors/AppError";
 import { CreateProductUseCase } from "../../useCases/createProduct/createProductUseCase";
 import { DeleteProductUseCase } from "../../useCases/deleteProduct/deleteProductUseCase";
 import { ProductsRepositoryInMemory } from "./ProductsRepositoryInMemory";
+import { InMemoryCacheProvider } from "../../../../shared/container/providers/CacheProvider/Implementations/InMemoryCacheProvider";
 
 let deleteProductUseCase: DeleteProductUseCase;
 let productRepositoryInMemory: ProductsRepositoryInMemory;
 let createProductUseCase: CreateProductUseCase;
+let cacheProvider: InMemoryCacheProvider;
 
 describe("Delete Product", () => {
   beforeEach(() => {
     productRepositoryInMemory = new ProductsRepositoryInMemory();
-    deleteProductUseCase = new DeleteProductUseCase(productRepositoryInMemory);
-    createProductUseCase = new CreateProductUseCase(productRepositoryInMemory);
+    cacheProvider = new InMemoryCacheProvider();
+    deleteProductUseCase = new DeleteProductUseCase(
+      productRepositoryInMemory,
+      cacheProvider
+    );
+    createProductUseCase = new CreateProductUseCase(
+      productRepositoryInMemory,
+      cacheProvider
+    );
   });
 
   const userId = randomUUID();

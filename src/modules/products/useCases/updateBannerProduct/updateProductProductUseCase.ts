@@ -4,6 +4,7 @@ import uploadConfig from "../../../../config/upload";
 import { IProductsRepository } from "../../repositories/IProductsRepository";
 import { AppError } from "../../../../shared/errors/AppError";
 import { injectable, inject } from "tsyringe";
+import { ICacheProvider } from "../../../../shared/container/providers/CacheProvider/ICacheProvider";
 
 interface IRequest {
   productId: string;
@@ -14,7 +15,9 @@ interface IRequest {
 export class UpdateProductImageUseCase {
   constructor(
     @inject("ProductsRepository")
-    private productsRepository: IProductsRepository
+    private productsRepository: IProductsRepository,
+    @inject("CacheProvider")
+    private cacheProvider: ICacheProvider
   ) {}
 
   async execute({ productId, userId, imageFilename }: IRequest) {
@@ -30,6 +33,8 @@ export class UpdateProductImageUseCase {
         403
       );
     }
+    await this.cacheProvider.invalidate(`product-details:${productId}`);
+    await this.cacheProvider.invalidatePrefix("products-list");
 
     if (product.banner) {
       const productBannerFilePath = path.join(

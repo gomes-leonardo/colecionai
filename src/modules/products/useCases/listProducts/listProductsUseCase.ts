@@ -1,15 +1,38 @@
 import { injectable, inject } from "tsyringe";
-import { IProductsRepository } from "../../repositories/IProductsRepository";
+import {
+  IListProductDTO,
+  IProductsRepository,
+} from "../../repositories/IProductsRepository";
+import { ICacheProvider } from "../../../../shared/container/providers/CacheProvider/ICacheProvider";
+import { Product } from "@prisma/client";
 
 @injectable()
 export class ListAllProductsUseCase {
   constructor(
     @inject("ProductsRepository")
-    private productsRepository: IProductsRepository
+    private productsRepository: IProductsRepository,
+    @inject("CacheProvider")
+    private cacheProvider: ICacheProvider
   ) {}
 
-  async execute() {
-    const result = await this.productsRepository.list();
+  async execute(filter: IListProductDTO) {
+    const cacheKey = `products-list:${JSON.stringify(filter)}`;
+
+    const productsInCache = await this.cacheProvider.recover<Product[]>(
+      cacheKey
+    );
+
+    if (productsInCache) {
+      console.log("⚡ Hit no Cache! Retornando do Redis.");
+      return productsInCache;
+    }
+    const result = await this.productsRepository.list({
+      name: filter.name,
+      condition: filter.condition,
+      category: filter.category,
+    });
+
+    await this.cacheProvider.save(cacheKey, result);
 
     return result;
   }
