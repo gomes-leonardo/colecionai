@@ -1,7 +1,5 @@
 import { Request, Response } from "express";
-import { PrismaUserTokenRepository } from "../../repositories/prisma/PrismaUserTokenRepository";
 import { ResetPasswordUseCase } from "./ResetPasswordUseCase";
-import { PrismaUsersRepository } from "../../repositories/prisma/PrismaUsersRepository";
 import { container } from "tsyringe";
 
 export class ResetPasswordController {

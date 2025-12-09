@@ -30,8 +30,9 @@ export class CreateProductUseCase {
     condition,
   }: IRequest) {
     if (!name) throw new AppError("Campo nome é obrigatório.", 400);
-    if (!price) throw new AppError("Campo preço é obrigatório.", 400);
-    if (!description) throw new AppError("Descrição é obrigatória", 400);
+    if (!price && price !== 0) throw new AppError("Campo preço é obrigatório.", 400);
+    if (price <= 0) throw new AppError("Preço deve ser maior que zero.", 400);
+    if (!description) throw new AppError("Campo descrição é obrigatório.", 400);
 
     if (!Object.values(ProductCondition).includes(condition)) {
       if (!condition) throw new AppError("Campo condição é obrigatório", 400);

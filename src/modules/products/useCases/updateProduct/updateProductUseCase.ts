@@ -45,6 +45,10 @@ export class UpdateProductUseCase {
       );
     }
 
+    if (price <= 0) {
+      throw new AppError("Preço deve ser maior que zero.", 400);
+    }
+
     await this.cacheProvider.invalidate(`product-details:${product.id}`);
     await this.cacheProvider.invalidatePrefix("products-list");
 

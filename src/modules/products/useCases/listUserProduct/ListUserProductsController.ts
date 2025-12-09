@@ -1,5 +1,4 @@
 import { Request, Response } from "express";
-import { PrismaProductsRepository } from "../../repositories/prisma/PrismaProductsRepository";
 import { ListUserProductsUseCase } from "./listUserProductsUseCase";
 import { container } from "tsyringe";
 

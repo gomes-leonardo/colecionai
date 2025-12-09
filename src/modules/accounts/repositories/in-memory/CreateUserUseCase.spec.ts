@@ -1,14 +1,28 @@
 import { UsersRepositoryInMemory } from "../../repositories/in-memory/UsersRepositoryInMemory";
+import { UsersTokenRepositoryInMemory } from "../../repositories/in-memory/UsersTokenRepositoryInMemory";
 import { AppError } from "../../../../shared/errors/AppError";
 import { CreateUserUseCase } from "../../useCases/createUser/createUserUseCase";
+import { IQueueProvider } from "../../../../shared/container/providers/QueueProvider/IQueueProvider";
 
 let createUserUseCase: CreateUserUseCase;
 let usersRepositoryInMemory: UsersRepositoryInMemory;
+let usersTokenRepositoryInMemory: UsersTokenRepositoryInMemory;
+let queueProvider: IQueueProvider;
+
+const mockQueueProvider: IQueueProvider = {
+  add: jest.fn().mockResolvedValue(undefined),
+};
 
 describe("Create User", () => {
   beforeEach(() => {
     usersRepositoryInMemory = new UsersRepositoryInMemory();
-    createUserUseCase = new CreateUserUseCase(usersRepositoryInMemory);
+    usersTokenRepositoryInMemory = new UsersTokenRepositoryInMemory();
+    queueProvider = mockQueueProvider;
+    createUserUseCase = new CreateUserUseCase(
+      usersRepositoryInMemory,
+      queueProvider,
+      usersTokenRepositoryInMemory
+    );
   });
 
   it("should be able to create a new user", async () => {

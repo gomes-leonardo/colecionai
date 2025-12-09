@@ -1,6 +1,10 @@
 import { Product } from "@prisma/client";
 import { randomUUID } from "crypto";
-import { ICreateProductDTO, IProductsRepository } from "../IProductsRepository";
+import {
+  ICreateProductDTO,
+  IListProductDTO,
+  IProductsRepository,
+} from "../IProductsRepository";
 
 export class ProductsRepositoryInMemory implements IProductsRepository {
   products: Product[] = [];
@@ -18,7 +22,7 @@ export class ProductsRepositoryInMemory implements IProductsRepository {
       id: randomUUID(),
       name,
       price,
-      user_id: randomUUID(),
+      user_id: userId,
       banner: banner || null,
       created_at: new Date(),
       updated_at: new Date(),
@@ -31,8 +35,28 @@ export class ProductsRepositoryInMemory implements IProductsRepository {
     return product;
   }
 
-  async list(): Promise<Product[]> {
-    return this.products;
+  async list(filters?: IListProductDTO): Promise<Product[]> {
+    let filteredProducts = [...this.products];
+
+    if (filters?.name) {
+      filteredProducts = filteredProducts.filter((product) =>
+        product.name.toLowerCase().includes(filters.name!.toLowerCase())
+      );
+    }
+
+    if (filters?.category) {
+      filteredProducts = filteredProducts.filter(
+        (product) => product.category === filters.category
+      );
+    }
+
+    if (filters?.condition) {
+      filteredProducts = filteredProducts.filter(
+        (product) => product.condition === filters.condition
+      );
+    }
+
+    return filteredProducts;
   }
 
   async listByUserId(userId: string): Promise<Product[]> {

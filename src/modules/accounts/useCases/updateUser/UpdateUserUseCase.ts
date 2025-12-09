@@ -4,9 +4,14 @@ import {
   IUserCreateDTO,
   IUserRepository,
 } from "../../repositories/IUserRepository";
+import { inject, injectable } from "tsyringe";
 
+@injectable()
 export class UpdateUserUseCase {
-  constructor(private userRepository: IUserRepository) {}
+  constructor(
+    @inject("UsersRepository")
+    private userRepository: IUserRepository
+  ) {}
 
   async execute(id: string, password: string) {
     const user = await this.userRepository.findById(id);

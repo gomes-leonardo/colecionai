@@ -63,7 +63,18 @@ Para detalhes completos sobre os endpoints, formatos de requisição e resposta,
    ```
 
 3. **Configure as variáveis de ambiente**
-   Crie um arquivo `.env` na raiz do projeto (baseado no `.env.example`, se houver) e configure as credenciais do banco e segredos JWT.
+   Copie o `.env.example` e ajuste os valores:
+   ```bash
+   cp .env.example .env
+   ```
+
+### Variáveis de ambiente
+
+- `NODE_ENV`: ambiente de execução (`development`/`production`).
+- `JWT_SECRET`: segredo usado para assinar os tokens JWT.
+- `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASS`, `DB_NAME`: credenciais do PostgreSQL.
+- `REDIS_HOST`, `REDIS_PORT`: host e porta do Redis usado pelo BullMQ.
+- `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`: credenciais para envio de e-mails.
 
 4. **Inicie o Banco de Dados**
    Utilize o Docker para subir o container do PostgreSQL:
@@ -82,6 +93,12 @@ Para detalhes completos sobre os endpoints, formatos de requisição e resposta,
    npm run dev
    ```
    O servidor estará rodando em `http://localhost:3333`.
+
+7. **(Opcional) Inicie o Worker de Fila**
+   Para processamento de e-mails via BullMQ/Redis:
+   ```bash
+   npx ts-node src/job/worker.ts
+   ```
 
 ## 🧪 Testes
 

@@ -2,10 +2,14 @@ import { hash } from "bcryptjs";
 import { AppError } from "../../../../shared/errors/AppError";
 import { IUserRepository } from "../../repositories/IUserRepository";
 import { IUsersTokensRepository } from "../../repositories/IUserTokensRepository";
+import { inject, injectable } from "tsyringe";
 
+@injectable()
 export class ResetPasswordUseCase {
   constructor(
+    @inject("UsersTokenRepository")
     private userTokenRepository: IUsersTokensRepository,
+    @inject("UsersRepository")
     private userRepository: IUserRepository
   ) {}
 
