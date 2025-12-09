@@ -25,6 +25,7 @@ export class UpdateUserUseCase {
       email: user.email,
       password: passwordHash,
       created_at: user.created_at,
+      is_verified: user.is_verified,
     });
 
     return newUser;
