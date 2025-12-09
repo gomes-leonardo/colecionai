@@ -22,22 +22,42 @@ export class SMTPMailProvider implements IMailProvider {
       throw new Error("Configuração SMTP incompleta. Verifique as variáveis de ambiente.");
     }
 
+    console.log("[SMTP] Configurando transporter com:", {
+      host: smtpHost,
+      port: smtpPort,
+      secure: smtpPort === 465,
+      user: smtpUser.substring(0, 3) + "***", // Log parcial do email
+    });
+
     this.client = nodemailer.createTransport({
       host: smtpHost,
       port: smtpPort,
-      secure: smtpPort === 465, // true para porta 465, false para outras
+      secure: smtpPort === 465, // true para porta 465 (SSL), false para 587 (TLS)
       auth: {
         user: smtpUser,
         pass: smtpPass,
       },
+      // Configurações adicionais para Gmail e produção
+      tls: {
+        // Não falhar em certificados inválidos (útil para alguns hosts)
+        rejectUnauthorized: false,
+      },
+      // Timeout maior para ambientes de produção lentos
+      connectionTimeout: 10000, // 10 segundos
+      greetingTimeout: 10000,
+      socketTimeout: 10000,
+      // Debug em desenvolvimento
+      debug: process.env.NODE_ENV === "development",
+      logger: process.env.NODE_ENV === "development",
     });
 
-    // Verificar conexão SMTP na inicialização
+    // Verificar conexão SMTP na inicialização (não bloqueia se falhar)
     this.client.verify((error, success) => {
       if (error) {
-        console.error("[SMTP] Erro ao verificar conexão SMTP:", error);
+        console.error("[SMTP] ⚠️  Erro ao verificar conexão SMTP:", error.message);
+        console.error("[SMTP] A aplicação continuará, mas emails podem falhar");
       } else {
-        console.log("[SMTP] Conexão SMTP verificada com sucesso");
+        console.log("[SMTP] ✅ Conexão SMTP verificada com sucesso");
       }
     });
   }
