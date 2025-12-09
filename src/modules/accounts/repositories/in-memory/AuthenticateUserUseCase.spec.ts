@@ -1,11 +1,18 @@
 import { AppError } from "../../../../shared/errors/AppError";
 import { AuthenticateUserUseCase } from "../../useCases/authenticateUser/AuthenticateUserUseCase";
 import { UsersRepositoryInMemory } from "./UsersRepositoryInMemory";
+import { UsersTokenRepositoryInMemory } from "./UsersTokenRepositoryInMemory";
 import { CreateUserUseCase } from "../../useCases/createUser/createUserUseCase";
+import { IQueueProvider } from "../../../../shared/container/providers/QueueProvider/IQueueProvider";
 
 let authenticateUserUseCase: AuthenticateUserUseCase;
 let usersRepositoryInMemory: UsersRepositoryInMemory;
+let usersTokenRepositoryInMemory: UsersTokenRepositoryInMemory;
 let createUserUseCase: CreateUserUseCase;
+
+const mockQueueProvider: IQueueProvider = {
+  add: jest.fn().mockResolvedValue(undefined),
+};
 
 describe("Authenticate User", () => {
   beforeAll(() => {
@@ -14,10 +21,15 @@ describe("Authenticate User", () => {
 
   beforeEach(() => {
     usersRepositoryInMemory = new UsersRepositoryInMemory();
+    usersTokenRepositoryInMemory = new UsersTokenRepositoryInMemory();
     authenticateUserUseCase = new AuthenticateUserUseCase(
       usersRepositoryInMemory
     );
-    createUserUseCase = new CreateUserUseCase(usersRepositoryInMemory);
+    createUserUseCase = new CreateUserUseCase(
+      usersRepositoryInMemory,
+      mockQueueProvider,
+      usersTokenRepositoryInMemory
+    );
   });
 
   it("should be able to authenticate an user", async () => {
@@ -26,6 +38,10 @@ describe("Authenticate User", () => {
       email: "auth@test.com",
       password: "Password@123",
     });
+
+    // Marcar usuário como verificado para permitir autenticação
+    user.is_verified = true;
+    await usersRepositoryInMemory.update(user);
 
     const response = await authenticateUserUseCase.execute({
       email: "auth@test.com",
@@ -36,11 +52,15 @@ describe("Authenticate User", () => {
   });
 
   it("should not be able to authenticate with incorrect password", async () => {
-    await createUserUseCase.execute({
+    const user = await createUserUseCase.execute({
       name: "User Wrong",
       email: "wrong@test.com",
       password: "Password@123",
     });
+
+    // Marcar usuário como verificado
+    user.is_verified = true;
+    await usersRepositoryInMemory.update(user);
 
     await expect(
       authenticateUserUseCase.execute({
@@ -91,6 +111,26 @@ describe("Authenticate User", () => {
       })
     ).rejects.toEqual(
       expect.objectContaining({ message: "Formato de e-mail inválido." })
+    );
+  });
+
+  it("should not be able to authenticate an unverified user", async () => {
+    await createUserUseCase.execute({
+      name: "User Unverified",
+      email: "unverified@test.com",
+      password: "Password@123",
+    });
+
+    await expect(
+      authenticateUserUseCase.execute({
+        email: "unverified@test.com",
+        password: "Password@123",
+      })
+    ).rejects.toEqual(
+      expect.objectContaining({
+        message:
+          "Seu e-mail ainda não foi verificado. Enviamos um novo link de verificação para você agora.",
+      })
     );
   });
 });

@@ -5,12 +5,19 @@ import {
   IUserRepository,
 } from "../../repositories/IUserRepository";
 import { inject, injectable } from "tsyringe";
+import { IQueueProvider } from "../../../../shared/container/providers/QueueProvider/IQueueProvider";
+import { randomInt } from "node:crypto";
+import { IUsersTokensRepository } from "../../repositories/IUserTokensRepository";
 
 @injectable()
 export class CreateUserUseCase {
   constructor(
     @inject("UsersRepository")
-    private usersRepository: IUserRepository
+    private usersRepository: IUserRepository,
+    @inject("QueueProvider")
+    private queueProvider: IQueueProvider,
+    @inject("UsersTokenRepository")
+    private usersTokenRepository: IUsersTokensRepository
   ) {}
 
   async execute({ name, email, password }: IUserCreateDTO) {
@@ -59,6 +66,30 @@ export class CreateUserUseCase {
       name,
       email,
       password: passwordHash,
+      isVerified: false,
+    });
+
+    const chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    const token = Array.from(
+      { length: 6 },
+      () => chars[randomInt(0, chars.length)]
+    ).join("");
+
+    const expiresDate = new Date();
+
+    expiresDate.setHours(expiresDate.getHours() + 3);
+
+    await this.queueProvider.add("register-confirmation", {
+      email: user.email,
+      name: user.name,
+      token: token,
+    });
+
+    await this.usersTokenRepository.create({
+      reset_password_token: null,
+      verify_email_token: token,
+      user_id: user.id,
+      expires_at: expiresDate,
     });
 
     return user;

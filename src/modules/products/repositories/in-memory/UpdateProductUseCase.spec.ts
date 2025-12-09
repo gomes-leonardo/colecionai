@@ -102,4 +102,60 @@ describe("Update Product Info", () => {
       })
     );
   });
+
+  it("should not be able to update a product with negative price", async () => {
+    const product = await createProductUseCase.execute({
+      name: "Original",
+      price: 500,
+      description: "Descrição",
+      category: "MANGA",
+      condition: "USED",
+      userId: userId,
+    });
+
+    await expect(
+      updateProductUseCase.execute({
+        id: product.id,
+        name: "Editado",
+        price: -100,
+        description: "Descrição",
+        category: "MANGA",
+        condition: "USED",
+        userId: product.user_id,
+      })
+    ).rejects.toEqual(
+      expect.objectContaining({
+        message: "Preço deve ser maior que zero.",
+        statusCode: 400,
+      })
+    );
+  });
+
+  it("should not be able to update a product with zero price", async () => {
+    const product = await createProductUseCase.execute({
+      name: "Original",
+      price: 500,
+      description: "Descrição",
+      category: "MANGA",
+      condition: "USED",
+      userId: userId,
+    });
+
+    await expect(
+      updateProductUseCase.execute({
+        id: product.id,
+        name: "Editado",
+        price: 0,
+        description: "Descrição",
+        category: "MANGA",
+        condition: "USED",
+        userId: product.user_id,
+      })
+    ).rejects.toEqual(
+      expect.objectContaining({
+        message: "Preço deve ser maior que zero.",
+        statusCode: 400,
+      })
+    );
+  });
 });

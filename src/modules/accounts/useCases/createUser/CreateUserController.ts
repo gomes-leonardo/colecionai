@@ -7,7 +7,12 @@ export class CreateUserController {
     const { name, email, password } = req.body;
 
     const createUserUseCase = container.resolve(CreateUserUseCase);
-    await createUserUseCase.execute({ name, email, password });
+    await createUserUseCase.execute({
+      name,
+      email,
+      password,
+      isVerified: false,
+    });
 
     return res.status(201).send();
   }

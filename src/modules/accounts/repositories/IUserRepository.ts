@@ -1,9 +1,10 @@
-import { User } from "@prisma/client";
+import { Prisma, User } from "@prisma/client";
 
 export interface IUserCreateDTO {
   name: string;
   email: string;
   password: string;
+  isVerified?: boolean;
 }
 
 export interface IUserRepository {

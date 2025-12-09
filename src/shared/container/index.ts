@@ -8,6 +8,8 @@ import { IUsersTokensRepository } from "../../modules/accounts/repositories/IUse
 import { PrismaUserTokenRepository } from "../../modules/accounts/repositories/prisma/PrismaUserTokenRepository";
 import { ICacheProvider } from "./providers/CacheProvider/ICacheProvider";
 import { RedisCacheProvider } from "./providers/CacheProvider/Implementations/RedisCacheProvider";
+import { BullQueueProvider } from "./providers/QueueProvider/Implementations/BullQueueProvider";
+import { IQueueProvider } from "./providers/QueueProvider/IQueueProvider";
 
 container.registerSingleton<IUserRepository>(
   "UsersRepository",
@@ -28,3 +30,5 @@ container.registerSingleton<ICacheProvider>(
   "CacheProvider",
   RedisCacheProvider
 );
+
+container.registerSingleton<IQueueProvider>("QueueProvider", BullQueueProvider);

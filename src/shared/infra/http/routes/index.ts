@@ -25,6 +25,8 @@ import { validateResource } from "../middlewares/validateResource";
 import { CreateForgotPasswordTokenController } from "../../../../modules/accounts/useCases/createForgotPasswordToken/CreateForgotPasswordTokenController";
 import { ResetPasswordController } from "../../../../modules/accounts/useCases/resetPassword/ResetPasswordController";
 import { ListProductsDetailController } from "../../../../modules/products/useCases/listProductDetails/ListProductsController";
+import { VerifyEmailController } from "../../../../modules/accounts/useCases/verifyEmailToken/VerifyEmailTokenController";
+import { SendVerificationTokenController } from "../../../../modules/accounts/useCases/sendVerificationToken/SendVerificationTokenController";
 
 const router = Router();
 
@@ -36,7 +38,8 @@ const updateProductController = new UpdateProductController();
 const deleteProductController = new DeleteProductController();
 const updateProductImageController = new UpdateProductImageController();
 const resetPasswordController = new ResetPasswordController();
-
+const verifyEmailToken = new VerifyEmailController();
+const sendVerificationToken = new SendVerificationTokenController();
 const createUserController = new CreateUserController();
 const authenticateUserController = new AuthenticateUserController();
 const loadUserProfileController = new LoadUserProfileController();
@@ -55,6 +58,8 @@ router.post(
   validateResource(sessionSchema),
   authenticateUserController.handle
 );
+router.post("/verify", verifyEmailToken.handle);
+router.post("/verify/resend", sendVerificationToken.handle);
 router.post("/logout", ensureAuthenticated, logoutUserController.handle);
 router.get("/me", ensureAuthenticated, loadUserProfileController.handle);
 router.get(

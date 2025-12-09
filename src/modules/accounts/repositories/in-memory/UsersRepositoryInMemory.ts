@@ -3,21 +3,28 @@ import { randomUUID } from "crypto";
 import { IUserCreateDTO, IUserRepository } from "../IUserRepository";
 
 export class UsersRepositoryInMemory implements IUserRepository {
-  update(user: User): Promise<User> {
-    throw new Error("Method not implemented.");
-  }
   users: User[] = [];
 
-  async create({ name, email, password }: IUserCreateDTO): Promise<User> {
+  async create({ name, email, password, isVerified }: IUserCreateDTO): Promise<User> {
     const user: User = {
-      id: "1",
+      id: randomUUID(),
       name,
       email,
       password,
+      is_verified: isVerified ?? false,
       created_at: new Date(),
     };
 
     this.users.push(user);
+    return user;
+  }
+
+  async update(user: User): Promise<User> {
+    const index = this.users.findIndex((u) => u.id === user.id);
+    if (index === -1) {
+      throw new Error("User not found");
+    }
+    this.users[index] = user;
     return user;
   }
 

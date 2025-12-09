@@ -15,7 +15,7 @@ export class ListAllProductsUseCase {
     private cacheProvider: ICacheProvider
   ) {}
 
-  async execute(filter: IListProductDTO) {
+  async execute(filter: IListProductDTO, IListProductDTO?: any) {
     const cacheKey = `products-list:${JSON.stringify(filter)}`;
 
     const productsInCache = await this.cacheProvider.recover<Product[]>(

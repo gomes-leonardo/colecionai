@@ -39,6 +39,13 @@ export class AuthenticateUserUseCase {
       expiresIn: "30d",
     });
 
+    if (!user.is_verified) {
+      throw new AppError(
+        "Seu e-mail ainda não foi verificado. Enviamos um novo link de verificação para você agora.",
+        401
+      );
+    }
+
     return {
       user: {
         id: user.id,

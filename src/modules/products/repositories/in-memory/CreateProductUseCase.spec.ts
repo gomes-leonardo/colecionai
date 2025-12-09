@@ -137,4 +137,58 @@ describe("Create Product", () => {
       })
     );
   });
+
+  it("should not be able to create a product with negative price", async () => {
+    await expect(
+      createProductUseCase.execute({
+        userId: userId,
+        name: "Test",
+        price: -100,
+        description: "Descrição",
+        category: "MANGA",
+        condition: "USED",
+      })
+    ).rejects.toEqual(
+      expect.objectContaining({
+        message: "Preço deve ser maior que zero.",
+        statusCode: 400,
+      })
+    );
+  });
+
+  it("should not be able to create a product with zero price", async () => {
+    await expect(
+      createProductUseCase.execute({
+        userId: userId,
+        name: "Test",
+        price: 0,
+        description: "Descrição",
+        category: "MANGA",
+        condition: "USED",
+      })
+    ).rejects.toEqual(
+      expect.objectContaining({
+        message: "Preço deve ser maior que zero.",
+        statusCode: 400,
+      })
+    );
+  });
+
+  it("should not be able to create a product without description", async () => {
+    await expect(
+      createProductUseCase.execute({
+        userId: userId,
+        name: "Test",
+        price: 1000,
+        description: null as any,
+        category: "MANGA",
+        condition: "USED",
+      })
+    ).rejects.toEqual(
+      expect.objectContaining({
+        message: "Campo descrição é obrigatório.",
+        statusCode: 400,
+      })
+    );
+  });
 });
