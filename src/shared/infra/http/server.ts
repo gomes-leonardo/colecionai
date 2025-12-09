@@ -12,9 +12,25 @@ const port = process.env.PORT || 3333;
 
 app.use(express.json());
 app.use(cookieParser());
+
+// Allow multiple origins for CORS (development and production)
+const allowedOrigins = [
+  "http://localhost:3000",
+  "https://colecionai-front.vercel.app",
+];
+
 app.use(
   cors({
-    origin: process.env.APP_WEB_URL || "http://localhost:3000",
+    origin: (origin, callback) => {
+      // Allow requests with no origin (like mobile apps or curl requests)
+      if (!origin) return callback(null, true);
+      
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error(`Origin ${origin} not allowed by CORS`));
+      }
+    },
     credentials: true,
   })
 );
