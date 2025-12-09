@@ -66,9 +66,10 @@ services:
       - .:/usr/app
       - /usr/app/node_modules
     depends_on:
-      - database
-      - redis
-      - app
+      database:
+        condition: service_healthy
+      redis:
+        condition: service_started
     environment:
       - DATABASE_URL=postgresql://docker:docker@database:5432/colecionai?schema=public
       - DB_HOST=database
@@ -85,7 +86,7 @@ services:
       - SMTP_PASS=${SMTP_PASS:-mail_pass}
       - JWT_SECRET=${JWT_SECRET:-changeme}
       - NODE_ENV=${NODE_ENV:-development}
-    command: sh -c "npm run build && npx prisma generate && npm run worker:prod"
+    command: npm run worker:start
 
 volumes:
   pgdata:
