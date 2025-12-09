@@ -1,24 +1,67 @@
 import Redis, { Redis as RedisClient } from "ioredis";
 import { ICacheProvider } from "../ICacheProvider";
 
+function parseRedisURL(url: string) {
+  try {
+    const isTLS = url.startsWith("rediss://");
+    
+    const urlWithoutProtocol = url.replace(/^rediss?:\/\//, "");
+    
+    const match = urlWithoutProtocol.match(/^(?:([^:@]+):([^@]+)@)?([^:]+)(?::(\d+))?$/);
+    
+    if (!match) {
+      throw new Error(`Formato de URL inválido: ${url}`);
+    }
+    
+    const [, username, password, host, port] = match;
+    
+    const config: any = {
+      host: host || "127.0.0.1",
+      port: port ? Number(port) : 6379,
+    };
+    
+    if (password) {
+      config.password = decodeURIComponent(password);
+    }
+    
+    if (isTLS) {
+      config.tls = {
+        rejectUnauthorized: false, 
+      };
+    }
+    
+    console.log(`[Redis] Configurado: ${config.host}:${config.port} (TLS: ${isTLS}, Password: ${config.password ? '***' : 'não configurado'})`);
+    
+    return config;
+  } catch (error) {
+    console.error("[Redis] Erro ao parsear REDIS_URL:", error);
+    console.error("[Redis] URL recebida:", url);
+    return null;
+  }
+}
+
 function getRedisConfig() {
   if (process.env.REDIS_URL) {
-    const redisUrl = new URL(process.env.REDIS_URL);
-    const config: any = {
-      host: redisUrl.hostname,
-      port: Number(redisUrl.port) || 6379,
-      maxRetriesPerRequest: null,
-      connectTimeout: 10000,
-      retryStrategy: (times: number) => {
-        if (times > 3) {
-          console.warn("[Redis] Não foi possível conectar após 3 tentativas");
-          return null;
-        }
-        return Math.min(times * 200, 2000);
-      },
-      enableReadyCheck: true,
-      enableOfflineQueue: false,
-    };
+    const parsed = parseRedisURL(process.env.REDIS_URL);
+    
+    if (!parsed) {
+      console.warn("[Redis] Falha ao parsear REDIS_URL, usando configuração manual");
+    } else {
+      return {
+        ...parsed,
+        maxRetriesPerRequest: null,
+        connectTimeout: 10000,
+        retryStrategy: (times: number) => {
+          if (times > 3) {
+            console.warn("[Redis] Não foi possível conectar após 3 tentativas");
+            return null;
+          }
+          return Math.min(times * 200, 2000);
+        },
+        enableReadyCheck: true,
+        enableOfflineQueue: false,
+      };
+    }
   }
 
   return {
@@ -50,6 +93,7 @@ export class RedisCacheProvider implements ICacheProvider {
 
     this.client.on("error", (err) => {
       console.error("[Redis] Erro na conexão:", err.message);
+      console.error("[Redis] Stack:", err.stack);
     });
 
     this.client.on("connect", () => {
