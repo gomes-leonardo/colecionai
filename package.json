@@ -18,7 +18,7 @@
     "services:up": "docker compose -f docker-compose.yaml up -d",
     "services:down": "docker compose -f docker-compose.yaml down",
     "services:stop": "docker compose -f docker-compose.yaml stop",
-    "services:wait": "wait-on tcp:5432",
+    "services:wait": "node scripts/wait-for-db.js",
     "prisma:generate": "npx prisma generate"
   },
   "keywords": [],
