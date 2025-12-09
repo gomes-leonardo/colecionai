@@ -11,6 +11,9 @@ RUN npm install
 # Copiar código fonte
 COPY . .
 
+# Definir DATABASE_URL temporária para build (será sobrescrita em runtime)
+ENV DATABASE_URL="postgresql://user:pass@localhost:5432/db?schema=public"
+
 # Gerar Prisma Client ANTES do build
 RUN npx prisma generate
 
