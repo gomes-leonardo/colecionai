@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/shared/infra/http/server.ts",
     "test": "npm run services:up && npm run services:wait && npm run prisma:generate && jest --runInBand --verbose",
+    "worker": "ts-node-dev --respawn --transpile-only src/job/worker.ts",
     "test:watch": "jest --watchAll --runInBand --verbose",
     "services:up": "docker compose -f docker-compose.yaml up -d",
     "services:down": "docker compose -f docker-compose.yaml down",

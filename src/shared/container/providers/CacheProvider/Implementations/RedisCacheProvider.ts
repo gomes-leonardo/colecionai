@@ -6,7 +6,17 @@ export class RedisCacheProvider implements ICacheProvider {
 
   constructor() {
     this.client = new Redis({
-      host: "127.0.0.1",
+      host: process.env.REDIS_HOST || "127.0.0.1",
+      port: Number(process.env.REDIS_PORT) || 6379,
+      connectTimeout: 5000, // 5 segundos de timeout
+      retryStrategy: (times) => {
+        if (times > 3) {
+          console.warn("[Redis] Não foi possível conectar após 3 tentativas");
+          return null; // Para de tentar reconectar
+        }
+        return Math.min(times * 200, 2000);
+      },
+      lazyConnect: true, // Não conecta imediatamente
     });
   }
 
