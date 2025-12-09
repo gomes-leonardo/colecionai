@@ -10,10 +10,10 @@ export class ResetPasswordUseCase {
   ) {}
 
   async execute(token: string, password: string): Promise<void> {
-    const userToken = await this.userTokenRepository.findByRefreshToken(token);
+    const userToken = await this.userTokenRepository.findByPasswordToken(token);
 
     if (!userToken) {
-      throw new AppError("Token invalid", 400); // 400 ou 401
+      throw new AppError("Token invalid", 400);
     }
 
     if (new Date() > userToken.expires_at) {

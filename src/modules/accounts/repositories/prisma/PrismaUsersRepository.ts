@@ -37,6 +37,7 @@ export class PrismaUsersRepository implements IUserRepository {
       },
       data: {
         password: user.password,
+        is_verified: user.is_verified,
       },
     });
 

@@ -52,7 +52,6 @@ export class CreateProductUseCase {
       userId,
       banner: "",
     });
-    await this.cacheProvider.invalidate(`product-details:${product.id}`);
     await this.cacheProvider.invalidatePrefix("products-list");
 
     return product;

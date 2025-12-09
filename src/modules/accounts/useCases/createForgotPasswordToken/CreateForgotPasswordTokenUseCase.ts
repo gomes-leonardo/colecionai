@@ -4,6 +4,7 @@ import { AppError } from "../../../../shared/errors/AppError";
 import { emailQueue } from "../../../../job/queue";
 import { IUsersTokensRepository } from "../../repositories/IUserTokensRepository";
 import { inject, injectable } from "tsyringe";
+import { IQueueProvider } from "../../../../shared/container/providers/QueueProvider/IQueueProvider";
 
 @injectable()
 export class CreateForgotPasswordTokenUseCase {
@@ -11,7 +12,9 @@ export class CreateForgotPasswordTokenUseCase {
     @inject("UsersTokenRepository")
     private usersTokensRepository: IUsersTokensRepository,
     @inject("UsersRepository")
-    private userRepository: IUserRepository
+    private userRepository: IUserRepository,
+    @inject("QueueProvider")
+    private queueProvider: IQueueProvider
   ) {}
 
   async execute(email: string) {
@@ -24,22 +27,23 @@ export class CreateForgotPasswordTokenUseCase {
       throw new AppError("Usuário não encontrado.", 404);
     }
     const chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    const refreshToken = Array.from(
+    const resetPasswordToken = Array.from(
       { length: 6 },
       () => chars[randomInt(0, chars.length)]
     ).join("");
 
     await this.usersTokensRepository.create({
-      refresh_token: String(refreshToken),
+      reset_password_token: String(resetPasswordToken),
+      verify_email_token: null,
       user_id: user.id,
       expires_at: expiresDate,
     });
 
-    await emailQueue.add("forgot-password", {
+    await this.queueProvider.add("forgot-password", {
       email: user.email,
       name: user.name,
-      token: String(refreshToken),
-      link: `http://localhost:3000/password/reset?token=${refreshToken}`,
+      token: String(resetPasswordToken),
+      link: `http://localhost:3000/password/reset?token=${resetPasswordToken}`,
     });
   }
 }
