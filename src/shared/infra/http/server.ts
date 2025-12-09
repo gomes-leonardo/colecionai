@@ -25,4 +25,16 @@ app.use(globalError);
 
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);
+  if (process.env.NODE_ENV === "production") {
+    console.log("[Server] Iniciando worker em produção...");
+    try {
+      require("../../job/worker");
+      console.log("[Server] Worker iniciado com sucesso!");
+    } catch (err) {
+      console.error("[Server] Erro ao iniciar worker:", err);
+      console.error("[Server] API continuará rodando sem worker");
+    }
+  } else {
+    console.log("[Server] Modo desenvolvimento - rode 'npm run worker' em terminal separado");
+  }
 });

@@ -4,12 +4,15 @@ import { Worker } from "bullmq";
 import { connection } from "./queue";
 import { SMTPMailProvider } from "../shared/container/providers/MailProvider/Implementations/SMTPMailProvider";
 
-const mailProvider = new SMTPMailProvider();
+// Lazy initialization do mail provider
+let mailProvider: SMTPMailProvider | null = null;
 
-connection.connect().catch((err) => {
-  console.error("[Worker] Erro ao conectar ao Redis:", err);
-  process.exit(1);
-});
+function getMailProvider(): SMTPMailProvider {
+  if (!mailProvider) {
+    mailProvider = new SMTPMailProvider();
+  }
+  return mailProvider;
+}
 
 connection.on("connect", () => {
   console.log("[Worker] Conectado ao Redis com sucesso");
@@ -32,7 +35,7 @@ export const worker = new Worker(
           throw new Error("Dados incompletos para forgot-password");
         }
 
-        await mailProvider.sendMail(
+        await getMailProvider().sendMail(
           email,
           "Recuperação de Senha",
           `Olá ${name}, clique aqui para resetar: <a href="${link}">Link</a>`
@@ -46,7 +49,7 @@ export const worker = new Worker(
           throw new Error("Dados incompletos para register-confirmation");
         }
 
-        await mailProvider.sendMail(
+        await getMailProvider().sendMail(
           email,
           "Bem-vindo ao Coleciona Ai! 🚀",
           `
