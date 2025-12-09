@@ -16,7 +16,7 @@ services:
     maxmemoryPolicy: noeviction
     ipAllowList: []
 
-  # Web Service (API)
+  # Web Service (API + Worker)
   - type: web
     name: colecionai-api
     runtime: node
@@ -83,85 +83,6 @@ services:
       
       - key: JWT_SECRET
         generateValue: true
-      
-      - key: APP_WEB_URL
-        value: https://colecionai-front.vercel.app
-      
-      - key: SMTP_HOST
-        sync: false
-      
-      - key: SMTP_PORT
-        sync: false
-      
-      - key: SMTP_USER
-        sync: false
-      
-      - key: SMTP_PASS
-        sync: false
-
-  # Background Worker (BullMQ)
-  - type: worker
-    name: colecionai-worker
-    runtime: node
-    region: oregon
-    plan: free
-    branch: main
-    buildCommand: npm install && npm run build
-    startCommand: npm run worker:prod
-    envVars:
-      - key: NODE_ENV
-        value: production
-      
-      - key: DATABASE_URL
-        fromDatabase:
-          name: colecionai-db
-          property: connectionString
-      
-      - key: DB_HOST
-        fromDatabase:
-          name: colecionai-db
-          property: host
-      
-      - key: DB_PORT
-        fromDatabase:
-          name: colecionai-db
-          property: port
-      
-      - key: DB_USER
-        fromDatabase:
-          name: colecionai-db
-          property: user
-      
-      - key: DB_PASS
-        fromDatabase:
-          name: colecionai-db
-          property: password
-      
-      - key: DB_NAME
-        fromDatabase:
-          name: colecionai-db
-          property: database
-      
-      - key: REDIS_HOST
-        fromService:
-          type: redis
-          name: colecionai-redis
-          property: host
-      
-      - key: REDIS_PORT
-        fromService:
-          type: redis
-          name: colecionai-redis
-          property: port
-      
-      - key: REDIS_PASSWORD
-        fromService:
-          type: redis
-          name: colecionai-redis
-          property: password
-      
-      - key: JWT_SECRET
-        sync: false
       
       - key: APP_WEB_URL
         value: https://colecionai-front.vercel.app
