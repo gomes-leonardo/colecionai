@@ -11,6 +11,9 @@ RUN npm install
 # Copiar código fonte
 COPY . .
 
+# Gerar Prisma Client ANTES do build
+RUN npx prisma generate
+
 # Build da aplicação TypeScript
 RUN npm run build
 
@@ -21,4 +24,4 @@ EXPOSE 3333
 ENV NODE_ENV=production
 
 # Rodar migrations e iniciar aplicação (API + Worker)
-CMD ["sh", "-c", "npx prisma generate && npx prisma migrate deploy && npm run start:prod"]
+CMD ["sh", "-c", "npx prisma migrate deploy && npm run start:prod"]
