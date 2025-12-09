@@ -1,5 +1,9 @@
-import { Product } from "@prisma/client";
-import { ICreateProductDTO, IProductsRepository } from "../IProductsRepository";
+import { Product, ProductCategory } from "@prisma/client";
+import {
+  ICreateProductDTO,
+  IListProductDTO,
+  IProductsRepository,
+} from "../IProductsRepository";
 import prisma from "../../../../shared/infra/prisma";
 
 export class PrismaProductsRepository implements IProductsRepository {
@@ -25,8 +29,18 @@ export class PrismaProductsRepository implements IProductsRepository {
     });
     return product;
   }
-  async list(): Promise<Product[]> {
-    return await prisma.product.findMany();
+  async list({
+    name,
+    condition,
+    category,
+  }: IListProductDTO): Promise<Product[]> {
+    return await prisma.product.findMany({
+      where: {
+        name: name ? { contains: name, mode: "insensitive" } : undefined,
+        category: category ? { equals: category } : undefined,
+        condition: condition ? { equals: condition } : undefined,
+      },
+    });
   }
   async listByUserId(userId: string): Promise<Product[]> {
     return await prisma.product.findMany({

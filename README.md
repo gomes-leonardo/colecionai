@@ -37,6 +37,12 @@ O projeto foi desenvolvido utilizando as seguintes tecnologias e ferramentas:
   - Edição e remoção de produtos.
   - Categorização (Action Figures, Mangás, etc.) e Condição (Novo, Usado).
 
+
+
+## 📚 Documentação da API
+
+Para detalhes completos sobre os endpoints, formatos de requisição e resposta, consulte o arquivo [API_DOCUMENTATION.md](./API_DOCUMENTATION.md).
+
 ## 🚀 Como Executar o Projeto
 
 ### Pré-requisitos

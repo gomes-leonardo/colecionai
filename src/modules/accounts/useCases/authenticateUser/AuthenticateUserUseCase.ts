@@ -7,7 +7,7 @@ import { inject, injectable } from "tsyringe";
 @injectable()
 export class AuthenticateUserUseCase {
   constructor(
-    @inject("UserRepository")
+    @inject("UsersRepository")
     private userRepository: IUserRepository
   ) {}
   async execute({ email, password }: { email: string; password: string }) {

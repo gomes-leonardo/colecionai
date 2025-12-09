@@ -23,7 +23,12 @@ export class AuthenticateUserController {
         path: "/",
       });
 
-      return res.status(200).json({ user });
+      res.set(
+        "Cache-Control",
+        "no-store, no-cache, max-age=0, must-revalidate"
+      );
+
+      return res.status(200).json({ user, token });
     } catch (error) {
       if (error instanceof AppError) {
         return res.status(error.statusCode).json({ error: error.message });

@@ -1,12 +1,15 @@
 import { inject, injectable } from "tsyringe";
 import { AppError } from "../../../../shared/errors/AppError";
 import { IProductsRepository } from "../../repositories/IProductsRepository";
+import { ICacheProvider } from "../../../../shared/container/providers/CacheProvider/ICacheProvider";
 
 @injectable()
 export class DeleteProductUseCase {
   constructor(
     @inject("ProductsRepository")
-    private productsRepository: IProductsRepository
+    private productsRepository: IProductsRepository,
+    @inject("CacheProvider")
+    private cacheProvider: ICacheProvider
   ) {}
 
   async execute(id: string, userId: string) {
@@ -22,6 +25,8 @@ export class DeleteProductUseCase {
         403
       );
     }
+    await this.cacheProvider.invalidate(`product-details:${id}`);
+    await this.cacheProvider.invalidatePrefix("products-list");
 
     await this.productsRepository.delete(id);
   }

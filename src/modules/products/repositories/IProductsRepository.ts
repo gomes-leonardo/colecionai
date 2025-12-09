@@ -10,9 +10,15 @@ export interface ICreateProductDTO {
   banner: string;
 }
 
+export interface IListProductDTO {
+  name?: string;
+  category?: ProductCategory;
+  condition?: ProductCondition;
+}
+
 export interface IProductsRepository {
   create(data: ICreateProductDTO): Promise<Product>;
-  list(): Promise<Product[]>;
+  list(filters?: IListProductDTO): Promise<Product[]>;
   listByUserId(userId: string): Promise<Product[]>;
   findById(id: string): Promise<Product | null>;
   update(product: Product): Promise<Product>;

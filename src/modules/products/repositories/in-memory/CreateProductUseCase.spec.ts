@@ -1,14 +1,20 @@
 import { CreateProductUseCase } from "../../useCases/createProduct/createProductUseCase";
 import { ProductsRepositoryInMemory } from "./ProductsRepositoryInMemory";
+import { InMemoryCacheProvider } from "../../../../shared/container/providers/CacheProvider/Implementations/InMemoryCacheProvider";
 import crypto from "crypto";
 
 let createProductUseCase: CreateProductUseCase;
 let productRepositoryInMemory: ProductsRepositoryInMemory;
+let cacheProvider: InMemoryCacheProvider;
 
 describe("Create Product", () => {
   beforeEach(() => {
     productRepositoryInMemory = new ProductsRepositoryInMemory();
-    createProductUseCase = new CreateProductUseCase(productRepositoryInMemory);
+    cacheProvider = new InMemoryCacheProvider();
+    createProductUseCase = new CreateProductUseCase(
+      productRepositoryInMemory,
+      cacheProvider
+    );
   });
 
   const userId = crypto.randomUUID();

@@ -1,20 +1,29 @@
 import { randomUUID } from "crypto";
 import { AppError } from "../../../../shared/errors/AppError";
 import { CreateProductUseCase } from "../../useCases/createProduct/createProductUseCase";
-import { UpdateProductImageUseCase } from "../../useCases/updateBannerProduct/updateBannerProductUseCase"; // Ajuste o caminho
+import { UpdateProductImageUseCase } from "../../useCases/updateBannerProduct/updateProductProductUseCase"; // Ajuste o caminho
 import { ProductsRepositoryInMemory } from "./ProductsRepositoryInMemory";
+import { InMemoryCacheProvider } from "../../../../shared/container/providers/CacheProvider/Implementations/InMemoryCacheProvider";
 
 let updateProductImageUseCase: UpdateProductImageUseCase;
 let createProductUseCase: CreateProductUseCase;
 let productRepositoryInMemory: ProductsRepositoryInMemory;
+let cacheProvider: InMemoryCacheProvider;
 
 describe("Update Product Image", () => {
   beforeEach(() => {
     productRepositoryInMemory = new ProductsRepositoryInMemory();
+
+    productRepositoryInMemory = new ProductsRepositoryInMemory();
+    cacheProvider = new InMemoryCacheProvider();
     updateProductImageUseCase = new UpdateProductImageUseCase(
-      productRepositoryInMemory
+      productRepositoryInMemory,
+      cacheProvider
     );
-    createProductUseCase = new CreateProductUseCase(productRepositoryInMemory);
+    createProductUseCase = new CreateProductUseCase(
+      productRepositoryInMemory,
+      cacheProvider
+    );
   });
 
   const userId = randomUUID();

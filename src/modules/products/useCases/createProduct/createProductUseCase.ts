@@ -2,6 +2,7 @@ import { ProductCategory, ProductCondition } from "@prisma/client";
 import { AppError } from "../../../../shared/errors/AppError";
 import { IProductsRepository } from "../../repositories/IProductsRepository";
 import { inject, injectable } from "tsyringe";
+import { ICacheProvider } from "../../../../shared/container/providers/CacheProvider/ICacheProvider";
 
 interface IRequest {
   name: string;
@@ -15,7 +16,9 @@ interface IRequest {
 export class CreateProductUseCase {
   constructor(
     @inject("ProductsRepository")
-    private productsRepository: IProductsRepository
+    private productsRepository: IProductsRepository,
+    @inject("CacheProvider")
+    private cacheProvider: ICacheProvider
   ) {}
 
   async execute({
@@ -39,6 +42,7 @@ export class CreateProductUseCase {
       if (!category) throw new AppError("Campo category é obrigatório", 400);
       throw new AppError("Categoria inexistente", 400);
     }
+
     const product = await this.productsRepository.create({
       name,
       price,
@@ -48,6 +52,8 @@ export class CreateProductUseCase {
       userId,
       banner: "",
     });
+    await this.cacheProvider.invalidate(`product-details:${product.id}`);
+    await this.cacheProvider.invalidatePrefix("products-list");
 
     return product;
   }
