@@ -5,21 +5,25 @@ export class RedisCacheProvider implements ICacheProvider {
   private client: RedisClient;
 
   constructor() {
-    const redisConfig: RedisOptions = {
-      host: process.env.REDIS_HOST || "127.0.0.1",
-      port: Number(process.env.REDIS_PORT) || 6379,
-      password: process.env.REDIS_PASSWORD || undefined,
-      connectTimeout: 10000,
-      lazyConnect: true,
-    };
-
-    if (process.env.REDIS_PASSWORD) {
-      redisConfig.tls = {
-        rejectUnauthorized: false,
+    if (process.env.REDIS_URL) {
+      this.client = new Redis(process.env.REDIS_URL);
+    } else {
+      const redisConfig: RedisOptions = {
+        host: process.env.REDIS_HOST || "127.0.0.1",
+        port: Number(process.env.REDIS_PORT) || 6379,
+        password: process.env.REDIS_PASSWORD || undefined,
+        connectTimeout: 10000,
+        lazyConnect: true,
       };
-    }
 
-    this.client = new Redis(redisConfig);
+      if (process.env.REDIS_PASSWORD) {
+        redisConfig.tls = {
+          rejectUnauthorized: false,
+        };
+      }
+
+      this.client = new Redis(redisConfig);
+    }
   }
 
   async save(key: string, value: any): Promise<void> {
