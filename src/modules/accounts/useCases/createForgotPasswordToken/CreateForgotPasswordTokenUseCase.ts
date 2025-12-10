@@ -43,7 +43,7 @@ export class CreateForgotPasswordTokenUseCase {
       email: user.email,
       name: user.name,
       token: String(resetPasswordToken),
-      link: `http://localhost:3000/password/reset?token=${resetPasswordToken}`,
+      link: `https://colecionai-front.vercel.app/password/reset?token=${resetPasswordToken}`,
     });
   }
 }

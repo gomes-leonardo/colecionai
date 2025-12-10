@@ -2,14 +2,33 @@ import "reflect-metadata";
 import "dotenv/config";
 import { Worker } from "bullmq";
 import { connection } from "./queue";
+import { IMailProvider } from "../shared/container/providers/MailProvider/IMailProvider";
+import { ConsoleMailProvider } from "../shared/container/providers/MailProvider/Implementations/ConsoleMailProvider";
 import { SMTPMailProvider } from "../shared/container/providers/MailProvider/Implementations/SMTPMailProvider";
 
 // Lazy initialization do mail provider
-let mailProvider: SMTPMailProvider | null = null;
+let mailProvider: IMailProvider | null = null;
 
-function getMailProvider(): SMTPMailProvider {
+function getMailProvider(): IMailProvider {
   if (!mailProvider) {
-    mailProvider = new SMTPMailProvider();
+    const useSMTP = process.env.USE_SMTP === "true" && 
+                    process.env.SMTP_HOST && 
+                    process.env.SMTP_PORT && 
+                    process.env.SMTP_USER && 
+                    process.env.SMTP_PASS;
+
+    if (useSMTP) {
+      try {
+        mailProvider = new SMTPMailProvider();
+        console.log("[Worker] Usando SMTPMailProvider para envio de emails");
+      } catch (error) {
+        console.warn("[Worker] Falha ao inicializar SMTP, usando ConsoleMailProvider:", error);
+        mailProvider = new ConsoleMailProvider();
+      }
+    } else {
+      mailProvider = new ConsoleMailProvider();
+      console.log("[Worker] Usando ConsoleMailProvider (simulação com console.log)");
+    }
   }
   return mailProvider;
 }
@@ -23,7 +42,7 @@ connection.on("error", (err) => {
 });
 
 export const worker = new Worker(
-  "emails",
+"emails",
   async (job) => {
     try {
       console.log(`[Worker] Processando job: ${job.name}`, { jobId: job.id, data: job.data });
