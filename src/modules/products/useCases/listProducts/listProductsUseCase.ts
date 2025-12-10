@@ -2,6 +2,7 @@ import { injectable, inject } from "tsyringe";
 import {
   IListProductDTO,
   IProductsRepository,
+  ProductDetailsDTO,
 } from "../../repositories/IProductsRepository";
 import { ICacheProvider } from "../../../../shared/container/providers/CacheProvider/ICacheProvider";
 import { Product } from "@prisma/client";
@@ -15,12 +16,12 @@ export class ListAllProductsUseCase {
     private cacheProvider: ICacheProvider
   ) {}
 
-  async execute(filter: IListProductDTO, IListProductDTO?: any) {
+  async execute(filter: IListProductDTO) {
     const cacheKey = `products-list:${JSON.stringify(filter)}`;
 
-    const productsInCache = await this.cacheProvider.recover<Product[]>(
-      cacheKey
-    );
+    const productsInCache = await this.cacheProvider.recover<
+      ProductDetailsDTO[]
+    >(cacheKey);
 
     if (productsInCache) {
       console.log("⚡ Hit no Cache! Retornando do Redis.");

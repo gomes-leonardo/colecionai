@@ -3,6 +3,7 @@ import {
   ICreateProductDTO,
   IListProductDTO,
   IProductsRepository,
+  ProductDetailsDTO,
 } from "../IProductsRepository";
 import prisma from "../../../../shared/infra/prisma";
 
@@ -47,10 +48,26 @@ export class PrismaProductsRepository implements IProductsRepository {
       where: { user_id: userId },
     });
   }
-  async findById(id: string): Promise<Product | null> {
-    return await prisma.product.findUnique({
+  async findById(id: string): Promise<ProductDetailsDTO | null> {
+    const product = await prisma.product.findUnique({
       where: { id },
+      include: {
+        user: {
+          select: {
+            name: true,
+          },
+        },
+      },
     });
+
+    if (!product) return null;
+
+    const { user, ...productData } = product;
+
+    return {
+      ...productData,
+      authorName: user.name || "Desconhecido",
+    };
   }
 
   async update(product: Product): Promise<Product> {

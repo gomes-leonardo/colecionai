@@ -16,11 +16,15 @@ export interface IListProductDTO {
   condition?: ProductCondition;
 }
 
+export type ProductDetailsDTO = Product & {
+  authorName: string;
+};
+
 export interface IProductsRepository {
   create(data: ICreateProductDTO): Promise<Product>;
   list(filters?: IListProductDTO): Promise<Product[]>;
   listByUserId(userId: string): Promise<Product[]>;
-  findById(id: string): Promise<Product | null>;
+  findById(id: string): Promise<ProductDetailsDTO | null>;
   update(product: Product): Promise<Product>;
   delete(id: string): Promise<void>;
 }
