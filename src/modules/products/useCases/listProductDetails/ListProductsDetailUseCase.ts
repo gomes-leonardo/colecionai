@@ -1,5 +1,8 @@
 import { injectable, inject } from "tsyringe";
-import { IProductsRepository } from "../../repositories/IProductsRepository";
+import {
+  IProductsRepository,
+  ProductDetailsDTO,
+} from "../../repositories/IProductsRepository";
 import { AppError } from "../../../../shared/errors/AppError";
 import { ICacheProvider } from "../../../../shared/container/providers/CacheProvider/ICacheProvider";
 import { Product } from "@prisma/client";
@@ -13,12 +16,11 @@ export class ListProductsDetailUseCase {
     private cacheProvider: ICacheProvider
   ) {}
 
-  async execute(productId: string) {
-    const cacheKey = `products-list:${JSON.stringify(productId)}`;
+  async execute(productId: string): Promise<ProductDetailsDTO | null> {
+    const cacheKey = `products-list:${productId}`;
 
-    const productDetailsInCache = await this.cacheProvider.recover<Product>(
-      cacheKey
-    );
+    const productDetailsInCache =
+      await this.cacheProvider.recover<ProductDetailsDTO>(cacheKey);
 
     if (productDetailsInCache) {
       console.log("⚡ Hit no ProductDetailsCache! Retornando do Redis.");
@@ -26,7 +28,9 @@ export class ListProductsDetailUseCase {
     }
     const result = await this.productsRepository.findById(productId);
 
-    await this.cacheProvider.save(cacheKey, result);
+    if (result) {
+      await this.cacheProvider.save(cacheKey, result);
+    }
 
     return result;
   }

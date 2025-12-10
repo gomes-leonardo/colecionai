@@ -4,6 +4,7 @@ import {
   ICreateProductDTO,
   IListProductDTO,
   IProductsRepository,
+  ProductDetailsDTO,
 } from "../IProductsRepository";
 
 export class ProductsRepositoryInMemory implements IProductsRepository {
@@ -63,9 +64,14 @@ export class ProductsRepositoryInMemory implements IProductsRepository {
     return this.products.filter((product) => product.user_id === userId);
   }
 
-  async findById(id: string): Promise<Product | null> {
+  async findById(id: string): Promise<ProductDetailsDTO | null> {
     const product = this.products.find((product) => product.id === id);
-    return product || null;
+    if (!product) return null;
+    
+    return {
+      ...product,
+      authorName: "Test User",
+    };
   }
 
   async update(product: Product): Promise<Product> {
