@@ -65,7 +65,7 @@ io.use((socket, next) => {
   }
 
   try {
-    if (!process.env.JWT_SECRET) return;
+    if (!process.env.JWT_SECRET) return next(new Error("JWT secret missing"));
 
     const { sub } = verify(token, process.env.JWT_SECRET);
     (socket as any).user_id = sub;
