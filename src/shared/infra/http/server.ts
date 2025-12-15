@@ -15,9 +15,14 @@ const app = express();
 const port = process.env.PORT || 3333;
 const httpServer = createServer(app);
 
+const allowedOrigins = [
+  "http://localhost:3000",
+  "https://colecionai-front.vercel.app",
+];
+
 const io = new Server(httpServer, {
   cors: {
-    origin: process.env.APP_WEB_URL || "http://localhost:3000",
+    origin: allowedOrigins,
     methods: ["GET", "POST"],
     credentials: true,
   },
@@ -25,11 +30,6 @@ const io = new Server(httpServer, {
 
 app.use(express.json());
 app.use(cookieParser());
-
-const allowedOrigins = [
-  "http://localhost:3000",
-  "https://colecionai-front.vercel.app",
-];
 
 app.use(
   cors({
