@@ -10,17 +10,9 @@ export class LoadUserProfileController {
     const loadUserProfileUseCase = container.resolve(LoadUserProfileUseCase);
 
     try {
-      const { user, token } = await loadUserProfileUseCase.execute(id);
+      const { user } = await loadUserProfileUseCase.execute(id);
 
-      res.cookie("token", token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "strict",
-        maxAge: 60 * 60 * 24 * 30 * 1000, // 30 days
-        path: "/",
-      });
-
-      return res.status(200).json({ user, token });
+      return res.status(200).json({ user });
     } catch (error) {
       if (error instanceof AppError) {
         return res.status(error.statusCode).json({ error: error.message });

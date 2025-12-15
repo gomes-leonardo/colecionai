@@ -21,11 +21,6 @@ export class LoadUserProfileUseCase {
       throw new Error("JWT_SECRET is not defined!");
     }
 
-    const token = sign({}, process.env.JWT_SECRET as string, {
-      subject: String(user.id),
-      expiresIn: "30d",
-    });
-
     return {
       user: {
         id: user.id,
@@ -33,7 +28,6 @@ export class LoadUserProfileUseCase {
         email: user.email,
         created_at: user.created_at,
       },
-      token,
     };
   }
 }

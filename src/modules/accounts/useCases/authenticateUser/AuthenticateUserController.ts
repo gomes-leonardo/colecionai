@@ -28,7 +28,7 @@ export class AuthenticateUserController {
         "no-store, no-cache, max-age=0, must-revalidate"
       );
 
-      return res.status(200).json({ user, token });
+      return res.status(200).json({ user });
     } catch (error) {
       if (error instanceof AppError) {
         return res.status(error.statusCode).json({ error: error.message });

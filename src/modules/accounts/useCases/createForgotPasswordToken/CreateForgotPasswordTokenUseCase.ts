@@ -1,7 +1,7 @@
 import { randomInt } from "node:crypto";
 import { IUserRepository } from "../../repositories/IUserRepository";
 import { AppError } from "../../../../shared/errors/AppError";
-import { emailQueue } from "../../../../job/queue";
+import { emailQueue } from "../../../../jobs/queue";
 import { IUsersTokensRepository } from "../../repositories/IUserTokensRepository";
 import { inject, injectable } from "tsyringe";
 import { IQueueProvider } from "../../../../shared/container/providers/QueueProvider/IQueueProvider";

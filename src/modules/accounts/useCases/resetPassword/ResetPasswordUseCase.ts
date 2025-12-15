@@ -14,6 +14,39 @@ export class ResetPasswordUseCase {
   ) {}
 
   async execute(token: string, password: string): Promise<void> {
+    if (!password) {
+      throw new AppError("Senha é obrigatória.", 400);
+    }
+
+    if (password.length < 8) {
+      throw new AppError("A senha deve ter no mínimo 8 caracteres.", 400);
+    }
+
+    if (!/[A-Z]/.test(password)) {
+      throw new AppError(
+        "A senha deve conter pelo menos uma letra maiúscula.",
+        400
+      );
+    }
+
+    if (!/[a-z]/.test(password)) {
+      throw new AppError(
+        "A senha deve conter pelo menos uma letra minúscula.",
+        400
+      );
+    }
+
+    if (!/[0-9]/.test(password)) {
+      throw new AppError("A senha deve conter pelo menos um número.", 400);
+    }
+
+    if (!/[^A-Za-z0-9]/.test(password)) {
+      throw new AppError(
+        "A senha deve conter pelo menos um caractere especial.",
+        400
+      );
+    }
+
     const userToken = await this.userTokenRepository.findByPasswordToken(token);
 
     if (!userToken) {

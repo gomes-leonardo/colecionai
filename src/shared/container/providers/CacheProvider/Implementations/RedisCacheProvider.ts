@@ -30,6 +30,10 @@ export class RedisCacheProvider implements ICacheProvider {
     await this.client.set(key, JSON.stringify(value));
   }
 
+  async saveWithExpiration(key: string, value: any, expirationInSeconds: number): Promise<void> {
+    await this.client.setex(key, expirationInSeconds, JSON.stringify(value));
+  }
+
   async recover<T>(key: string): Promise<T | null> {
     const data = await this.client.get(key);
 

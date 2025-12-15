@@ -6,7 +6,7 @@ const redisConfig: RedisOptions = {
   port: Number(process.env.REDIS_PORT) || 6379,
   password: process.env.REDIS_PASSWORD || undefined,
   maxRetriesPerRequest: null,
-  connectTimeout: 5000, 
+  connectTimeout: 5000,
   retryStrategy: (times) => {
     if (times > 3) {
       console.warn("[Redis Queue] Não foi possível conectar após 3 tentativas");
@@ -14,7 +14,7 @@ const redisConfig: RedisOptions = {
     }
     return Math.min(times * 200, 2000);
   },
-  lazyConnect: true, 
+  lazyConnect: true,
 };
 
 if (process.env.REDIS_PASSWORD) {
@@ -25,5 +25,6 @@ if (process.env.REDIS_PASSWORD) {
 
 const connection = new Redis(redisConfig);
 export const emailQueue = new Queue("emails", { connection });
+export const auctionQueue = new Queue("close-auctions", { connection });
 
 export { connection };

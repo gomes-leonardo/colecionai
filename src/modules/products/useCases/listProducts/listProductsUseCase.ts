@@ -24,7 +24,7 @@ export class ListAllProductsUseCase {
     >(cacheKey);
 
     if (productsInCache) {
-      console.log("⚡ Hit no Cache! Retornando do Redis.");
+      console.log("⚡ Hit no Products in Cache! Retornando do Redis.");
       return productsInCache;
     }
     const result = await this.productsRepository.list({
