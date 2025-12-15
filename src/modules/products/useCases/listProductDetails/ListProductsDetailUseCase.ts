@@ -23,14 +23,12 @@ export class ListProductsDetailUseCase {
       await this.cacheProvider.recover<ProductDetailsDTO>(cacheKey);
 
     if (productDetailsInCache) {
-      console.log("⚡ Hit no ProductDetailsCache! Retornando do Redis.");
+      console.log("⚡ Hit no Product Details in Cache! Retornando do Redis.");
       return productDetailsInCache;
     }
     const result = await this.productsRepository.findById(productId);
 
-    if (result) {
-      await this.cacheProvider.save(cacheKey, result);
-    }
+    await this.cacheProvider.save(cacheKey, result);
 
     return result;
   }

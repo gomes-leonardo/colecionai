@@ -1,5 +1,6 @@
 import { compare } from "bcryptjs";
 import { sign } from "jsonwebtoken";
+import { randomUUID } from "crypto";
 import { AppError } from "../../../../shared/errors/AppError";
 import { IUserRepository } from "../../repositories/IUserRepository";
 import { inject, injectable } from "tsyringe";
@@ -34,8 +35,10 @@ export class AuthenticateUserUseCase {
       throw new Error("JWT_SECRET is not defined!");
     }
 
+    const jti = randomUUID();
     const token = sign({}, process.env.JWT_SECRET as string, {
       subject: String(user.id),
+      jwtid: jti,
       expiresIn: "30d",
     });
 
@@ -53,6 +56,7 @@ export class AuthenticateUserUseCase {
         email: user.email,
       },
       token,
+      jti,
     };
   }
 }

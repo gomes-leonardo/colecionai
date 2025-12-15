@@ -10,6 +10,10 @@ import { ICacheProvider } from "./providers/CacheProvider/ICacheProvider";
 import { RedisCacheProvider } from "./providers/CacheProvider/Implementations/RedisCacheProvider";
 import { BullQueueProvider } from "./providers/QueueProvider/Implementations/BullQueueProvider";
 import { IQueueProvider } from "./providers/QueueProvider/IQueueProvider";
+import { IAuctionsRepository } from "../../modules/auctions/IAuctionsRepository";
+import { PrismaAuctionsRepository } from "../../modules/auctions/repositories/prisma/PrismaAuctionsRepository";
+import { IBidsRepository } from "../../modules/bids/repositories/IBidsRepository";
+import { PrismaBidsRepository } from "../../modules/bids/repositories/prisma/PrismaBidsRepository";
 
 container.registerSingleton<IUserRepository>(
   "UsersRepository",
@@ -29,6 +33,16 @@ container.registerSingleton<IUsersTokensRepository>(
 container.registerSingleton<ICacheProvider>(
   "CacheProvider",
   RedisCacheProvider
+);
+
+container.registerSingleton<IAuctionsRepository>(
+  "AuctionsRepository",
+  PrismaAuctionsRepository
+);
+
+container.registerSingleton<IBidsRepository>(
+  "BidsRepository",
+  PrismaBidsRepository
 );
 
 container.registerSingleton<IQueueProvider>("QueueProvider", BullQueueProvider);

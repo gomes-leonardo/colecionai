@@ -13,7 +13,6 @@ import {
   createUserSchema,
   updateUserSchema,
 } from "../../../../schemas/userSchema";
-import { sessionSchema } from "../../../../schemas/sessionSchema";
 
 import { CreateUserController } from "../../../../modules/accounts/useCases/createUser/CreateUserController";
 import { AuthenticateUserController } from "../../../../modules/accounts/useCases/authenticateUser/AuthenticateUserController";
@@ -27,6 +26,18 @@ import { ResetPasswordController } from "../../../../modules/accounts/useCases/r
 import { ListProductsDetailController } from "../../../../modules/products/useCases/listProductDetails/ListProductsController";
 import { VerifyEmailController } from "../../../../modules/accounts/useCases/verifyEmailToken/VerifyEmailTokenController";
 import { SendVerificationTokenController } from "../../../../modules/accounts/useCases/sendVerificationToken/SendVerificationTokenController";
+import { CreateAuctionController } from "../../../../modules/auctions/useCases/createAuction/CreateAuctionController";
+import {
+  createAuctionSchema,
+  listAuctionsQuerySchema,
+} from "../../../../schemas/auctionSchema";
+import { createSessionSchema } from "../../../../schemas/sessionSchema";
+import { ListAuctionsController } from "../../../../modules/auctions/useCases/listAuctions/ListAuctionsController";
+import { ListMyAuctionsController } from "../../../../modules/auctions/useCases/listMyAuctions/ListMyAuctionsController";
+import { UpdateAuctionController } from "../../../../modules/auctions/useCases/updateAuction/UpdateAuctionController";
+import { DeleteAuctionController } from "../../../../modules/auctions/useCases/deleteAuction/DeleteAuctionController";
+import { ListAuctionsDetailsController } from "../../../../modules/auctions/useCases/listAuctionDetails/ListAuctionDetailsController";
+import { CreateBidController } from "../../../../modules/bids/useCases/CreateBidController";
 
 const router = Router();
 
@@ -46,54 +57,26 @@ const loadUserProfileController = new LoadUserProfileController();
 const logoutUserController = new LogoutUserController();
 const sendPasswordToken = new CreateForgotPasswordTokenController();
 
+const createAuctionController = new CreateAuctionController();
+const listAuctionController = new ListAuctionsController();
+const listMyAuctionsController = new ListMyAuctionsController();
+const listAuctionDetailsController = new ListAuctionsDetailsController();
+const updateAuctionController = new UpdateAuctionController();
+const deleteAuctionController = new DeleteAuctionController();
+const createBidController = new CreateBidController();
 const upload = multer(uploadConfig);
 
+// USERS
 router.post(
   "/users",
   validateResource(createUserSchema),
   createUserController.handle
 );
-router.post(
-  "/sessions",
-  validateResource(sessionSchema),
-  authenticateUserController.handle
-);
+
+router.get("/me", ensureAuthenticated, loadUserProfileController.handle);
+
 router.post("/verify", verifyEmailToken.handle);
 router.post("/verify/resend", sendVerificationToken.handle);
-router.post("/logout", ensureAuthenticated, logoutUserController.handle);
-router.get("/me", ensureAuthenticated, loadUserProfileController.handle);
-router.get(
-  "/products/me",
-  ensureAuthenticated,
-  listUserProductsController.handle
-);
-router.get("/products/:id", listUserProductDetail.handle);
-
-router.get("/products", listProductsController.handle);
-
-router.post(
-  "/products",
-  ensureAuthenticated,
-  validateResource(createProductSchema),
-  createProductController.handle
-);
-router.delete(
-  "/products/:id",
-  ensureAuthenticated,
-  deleteProductController.handle
-);
-router.put(
-  "/products/:id",
-  ensureAuthenticated,
-  validateResource(createProductSchema),
-  updateProductController.handle
-);
-router.patch(
-  "/products/:id/image",
-  ensureAuthenticated,
-  upload.single("image"),
-  updateProductImageController.handle
-);
 
 router.post("/forgot-password", sendPasswordToken.handle);
 router.post(
@@ -102,4 +85,86 @@ router.post(
   resetPasswordController.handle
 );
 
+// SESSIONS / AUTH
+router.post(
+  "/sessions",
+  validateResource(createSessionSchema),
+  authenticateUserController.handle
+);
+
+router.post("/logout", ensureAuthenticated, logoutUserController.handle);
+
+// PRODUCTS
+router.get("/products", listProductsController.handle);
+
+router.get(
+  "/products/me",
+  ensureAuthenticated,
+  listUserProductsController.handle
+);
+
+router.get("/products/:id", listUserProductDetail.handle);
+
+router.post(
+  "/products",
+  ensureAuthenticated,
+  validateResource(createProductSchema),
+  createProductController.handle
+);
+
+router.put(
+  "/products/:id",
+  ensureAuthenticated,
+  validateResource(createProductSchema),
+  updateProductController.handle
+);
+
+router.delete(
+  "/products/:id",
+  ensureAuthenticated,
+  deleteProductController.handle
+);
+
+router.patch(
+  "/products/:id/image",
+  ensureAuthenticated,
+  upload.single("image"),
+  updateProductImageController.handle
+);
+
+// AUCTIONS
+router.post(
+  "/auctions",
+  ensureAuthenticated,
+  validateResource(createAuctionSchema),
+  createAuctionController.handle
+);
+router.get(
+  "/auctions",
+  validateResource(listAuctionsQuerySchema),
+  listAuctionController.handle
+);
+router.get(
+  "/auctions/me",
+  ensureAuthenticated,
+  listMyAuctionsController.handle
+);
+
+router.get("/auctions/details/:id", listAuctionDetailsController.handle);
+
+router.put(
+  "/auctions/:id",
+  ensureAuthenticated,
+  updateAuctionController.handle
+);
+
+router.delete(
+  "/auctions/:id",
+  ensureAuthenticated,
+  deleteAuctionController.handle
+);
+
+// BIDS
+
+router.post("/bids/", ensureAuthenticated, createBidController.handle);
 export default router;

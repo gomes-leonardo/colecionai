@@ -12,6 +12,12 @@ enum ProductCondition {
   OPEN_BOX
 }
 
+enum AuctionStatus {
+  OPEN      
+  CLOSED   
+  CANCELLED 
+}
+
 enum ProductCategory {
   ACTION_FIGURES
   COLLECTIBLE_STATUES
@@ -39,6 +45,7 @@ model Product {
   banner      String?          @db.VarChar(255)
   created_at  DateTime         @default(now()) @db.Timestamp(6)
   updated_at  DateTime         @updatedAt
+  auction     Auction?
 
   user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
@@ -54,6 +61,7 @@ model User {
   is_verified Boolean     @default(false)
   products    Product[]
   usertoken   UserToken[]
+  bids        Bid[]
 
   @@map("users")
 }
@@ -68,4 +76,34 @@ model UserToken {
   user          User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
   @@map("usertoken")
+}
+
+model Auction {
+  id            String    @id @default(uuid())
+  start_date    DateTime
+  end_date      DateTime
+  start_price   Decimal  @db.Decimal(10, 2)
+  product_id    String   @unique
+  product       Product @relation(fields: [product_id], references: [id], onDelete: Cascade)
+  bids          Bid[]
+  status        AuctionStatus @default(OPEN)
+
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  @@map("auctions")
+}
+
+model Bid {
+  id         String   @id @default(uuid())
+  amount     Decimal  @db.Decimal(10, 2)
+  created_at DateTime @default(now())
+
+  user_id    String
+  user       User     @relation(fields: [user_id], references: [id])
+
+  auction_id String
+  auction    Auction  @relation(fields: [auction_id], references: [id])
+
+  @@map("bids")
 }

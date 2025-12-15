@@ -8,6 +8,14 @@ export class InMemoryCacheProvider implements ICacheProvider {
     this.cache[key] = value;
   }
 
+  async saveWithExpiration(key: string, value: any, expirationInSeconds: number): Promise<void> {
+    this.cache[key] = value;
+    // Em memória, não há expiração automática, mas implementamos para compatibilidade
+    setTimeout(() => {
+      delete this.cache[key];
+    }, expirationInSeconds * 1000);
+  }
+
   async recover<T>(key: string): Promise<T | null> {
     const data = this.cache[key];
 
