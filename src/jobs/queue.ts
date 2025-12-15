@@ -24,6 +24,15 @@ if (process.env.REDIS_PASSWORD) {
 }
 
 const connection = new Redis(redisConfig);
+
+// Suprime erros de conexão em desenvolvimento - filas são opcionais
+connection.on('error', (err) => {
+  if (process.env.NODE_ENV === 'production') {
+    console.error('[Redis Queue] Erro de conexão:', err.message);
+  }
+  // Em desenvolvimento, suprime completamente os erros
+});
+
 export const emailQueue = new Queue("emails", { connection });
 export const auctionQueue = new Queue("close-auctions", { connection });
 
