@@ -1,12 +1,24 @@
 import { injectable } from "tsyringe";
 import { IMailProvider } from "../IMailProvider";
-import nodemailer, { Transporter } from "nodemailer";
 
 @injectable()
 export class SMTPMailProvider implements IMailProvider {
-  private client: Transporter;
+  private client: any;
 
   constructor() {
+    let nodemailer: any;
+    try {
+      nodemailer = require("nodemailer");
+      if (!nodemailer || !nodemailer.createTransport) {
+        throw new Error("nodemailer não está instalado corretamente");
+      }
+    } catch (error: any) {
+      const errorMessage = error?.code === "MODULE_NOT_FOUND" 
+        ? "nodemailer não está instalado. Execute: npm install nodemailer"
+        : `Erro ao carregar nodemailer: ${error?.message || error}`;
+      throw new Error(errorMessage);
+    }
+
     const smtpHost = process.env.SMTP_HOST;
     const smtpPort = Number(process.env.SMTP_PORT);
     const smtpUser = process.env.SMTP_USER;
@@ -51,8 +63,7 @@ export class SMTPMailProvider implements IMailProvider {
       logger: process.env.NODE_ENV === "development",
     });
 
-    // Verificar conexão SMTP na inicialização (não bloqueia se falhar)
-    this.client.verify((error, success) => {
+    this.client.verify((error: any, success: any) => {
       if (error) {
         console.error("[SMTP] ⚠️  Erro ao verificar conexão SMTP:", error.message);
         console.error("[SMTP] A aplicação continuará, mas emails podem falhar");
