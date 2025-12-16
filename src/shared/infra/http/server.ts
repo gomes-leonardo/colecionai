@@ -44,12 +44,12 @@ app.use(
     },
     credentials: true,
     allowedHeaders: [
-      "Origin", 
-      "X-Requested-With", 
-      "Content-Type", 
-      "Accept", 
+      "Origin",
+      "X-Requested-With",
+      "Content-Type",
+      "Accept",
       "Authorization",
-      "Cookie"
+      "Cookie",
     ],
     exposedHeaders: ["Set-Cookie"],
     preflightContinue: false,
@@ -139,10 +139,11 @@ httpServer.listen(port, () => {
   if (process.env.NODE_ENV === "production") {
     console.log("[Server] Iniciando worker em produção...");
     try {
+      require("../../../shared/container/index");
       require("../../../jobs/worker");
       console.log("[Server] Worker iniciado com sucesso!");
-    } catch (err) {
-      console.error("[Server] Erro ao iniciar worker:", err);
+    } catch (err: any) {
+      console.error("[Server] Erro ao iniciar worker:", err?.message || err);
       console.error("[Server] API continuará rodando sem worker");
     }
   } else {
