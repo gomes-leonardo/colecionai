@@ -99,11 +99,11 @@ try {
   if (fs.existsSync(auctionJobPath)) {
     const content = fs.readFileSync(auctionJobPath, "utf8");
     // Verificar se o import está correto (deve ter ../../shared/container/index)
-    if (content.includes("../../shared/container/index")) {
-      console.log("  ✅ AuctionJob.js tem import correto do container (../../shared/container/index)");
-    } else if (content.includes("../shared/container/index")) {
-      console.error("  ❌ AuctionJob.js tem import INCORRETO (../shared/container/index - deveria ser ../../)");
-      console.error("     Isso causará erro em produção!");
+    if (content.includes("../shared/container/index")) {
+      console.log("  ✅ AuctionJob.js tem import correto do container (../shared/container/index)");
+    } else if (content.includes("../../shared/container/index")) {
+      console.error("  ❌ AuctionJob.js tem import INCORRETO (../../shared/container/index - deveria ser ../)");
+      console.error("     Isso causará erro em produção! De dist/jobs/ para dist/shared/container/ é apenas 1 nível acima.");
     } else {
       console.error("  ❌ AuctionJob.js não tem import do container");
       const matches = content.match(/require\([^)]+container[^)]+\)/g);
@@ -116,11 +116,11 @@ try {
   const mailProviderPath = path.join(process.cwd(), "dist", "jobs", "MailProvider.js");
   if (fs.existsSync(mailProviderPath)) {
     const content = fs.readFileSync(mailProviderPath, "utf8");
-    if (content.includes("../../shared/container/index")) {
-      console.log("  ✅ MailProvider.js tem import correto do container (../../shared/container/index)");
-    } else if (content.includes("../shared/container/index")) {
-      console.error("  ❌ MailProvider.js tem import INCORRETO (../shared/container/index - deveria ser ../../)");
-      console.error("     Isso causará erro em produção!");
+    if (content.includes("../shared/container/index")) {
+      console.log("  ✅ MailProvider.js tem import correto do container (../shared/container/index)");
+    } else if (content.includes("../../shared/container/index")) {
+      console.error("  ❌ MailProvider.js tem import INCORRETO (../../shared/container/index - deveria ser ../)");
+      console.error("     Isso causará erro em produção! De dist/jobs/ para dist/shared/container/ é apenas 1 nível acima.");
     } else {
       console.error("  ❌ MailProvider.js não tem import do container");
     }

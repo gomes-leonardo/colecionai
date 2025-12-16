@@ -3,7 +3,7 @@ import { Worker } from "bullmq";
 import { container } from "tsyringe";
 import { IMailProvider } from "../shared/container/providers/MailProvider/IMailProvider";
 import { connection } from "./queue";
-import "../../shared/container/index";
+import "../shared/container/index";
 
 export const emailWorker = new Worker(
   "emails",
