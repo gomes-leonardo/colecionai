@@ -22,7 +22,7 @@ services:
       - DB_NAME=colecionai
       - REDIS_HOST=redis
       - REDIS_PORT=6379
-      - MAIL_PROVIDER=smtp
+      - MAIL_PROVIDER=${MAIL_PROVIDER:-console}
       - SMTP_HOST=${SMTP_HOST:-localhost}
       - SMTP_PORT=${SMTP_PORT:-1025}
       - SMTP_USER=${SMTP_USER:-mail_user}
@@ -78,7 +78,7 @@ services:
       - DB_NAME=colecionai
       - REDIS_HOST=redis
       - REDIS_PORT=6379
-      - MAIL_PROVIDER=smtp
+      - MAIL_PROVIDER=${MAIL_PROVIDER:-console}
       - SMTP_HOST=${SMTP_HOST:-localhost}
       - SMTP_PORT=${SMTP_PORT:-1025}
       - SMTP_USER=${SMTP_USER:-mail_user}
