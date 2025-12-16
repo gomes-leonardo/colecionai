@@ -15,6 +15,10 @@ const app = express();
 const port = process.env.PORT || 3333;
 const httpServer = createServer(app);
 
+if (process.env.NODE_ENV === "production") {
+  app.set("trust proxy", true);
+}
+
 const allowedOrigins = [
   "http://localhost:3000",
   "https://colecionai-front.vercel.app",
@@ -144,6 +148,9 @@ httpServer.listen(port, () => {
       console.log("[Server] Worker iniciado com sucesso!");
     } catch (err: any) {
       console.error("[Server] Erro ao iniciar worker:", err?.message || err);
+      if (err?.stack) {
+        console.error("[Server] Stack trace:", err.stack);
+      }
       console.error("[Server] API continuará rodando sem worker");
     }
   } else {

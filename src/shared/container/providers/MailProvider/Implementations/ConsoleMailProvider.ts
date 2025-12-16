@@ -11,7 +11,6 @@ export class ConsoleMailProvider implements IMailProvider {
     console.log(`Conteúdo:`);
     console.log(body);
     
-    // Extrai e destaca tokens do conteúdo
     const tokenMatch = body.match(/token[:\s]*([A-Z0-9]{6})/i) || body.match(/([A-Z0-9]{6})/);
     if (tokenMatch) {
       console.log("");
@@ -19,7 +18,6 @@ export class ConsoleMailProvider implements IMailProvider {
       console.log("");
     }
     
-    // Extrai links de reset de senha
     const linkMatch = body.match(/href=["']([^"']+)["']/);
     if (linkMatch) {
       console.log("🔗 LINK DE RESET:", linkMatch[1]);
@@ -29,6 +27,7 @@ export class ConsoleMailProvider implements IMailProvider {
     console.log("=".repeat(80));
   }
 }
+
 
 
 
