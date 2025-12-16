@@ -50,29 +50,36 @@ container.registerSingleton<IBidsRepository>(
 container.registerSingleton<IQueueProvider>("QueueProvider", BullQueueProvider);
 
 const mailProvider = process.env.MAIL_PROVIDER || "console";
+
 if (mailProvider === "smtp") {
+  // Verifica previamente se o nodemailer está disponível; se não estiver, faz fallback.
+  let nodemailerDisponivel = true;
   try {
-    const smtpModule = require("./providers/MailProvider/Implementations/SMTPMailProvider");
-    const SMTPMailProvider = smtpModule.SMTPMailProvider;
-    
-    if (!SMTPMailProvider) {
-      throw new Error("SMTPMailProvider não encontrado no módulo");
-    }
-    
-    container.registerSingleton<IMailProvider>("MailProvider", SMTPMailProvider);
-    console.log("[Container] ✅ SMTPMailProvider registrado com sucesso");
+    require("nodemailer");
   } catch (error: any) {
-    const errorMsg = error?.message || String(error);
-    const isModuleNotFound = error?.code === "MODULE_NOT_FOUND" || errorMsg.includes("Cannot find module");
-    
-    if (isModuleNotFound) {
-      console.warn("[Container] ⚠️  nodemailer não está instalado");
-      console.warn("[Container] 📧 Usando ConsoleMailProvider (emails serão logados no console)");
-    } else {
+    nodemailerDisponivel = false;
+    console.warn("[Container] ⚠️  nodemailer não está instalado em produção.");
+    console.warn("[Container] 📧 Usando ConsoleMailProvider como fallback.");
+  }
+
+  if (nodemailerDisponivel) {
+    try {
+      const smtpModule = require("./providers/MailProvider/Implementations/SMTPMailProvider");
+      const SMTPMailProvider = smtpModule.SMTPMailProvider;
+
+      if (!SMTPMailProvider) {
+        throw new Error("SMTPMailProvider não encontrado no módulo");
+      }
+
+      container.registerSingleton<IMailProvider>("MailProvider", SMTPMailProvider);
+      console.log("[Container] ✅ SMTPMailProvider registrado com sucesso");
+    } catch (error: any) {
+      const errorMsg = error?.message || String(error);
       console.warn("[Container] ⚠️  Erro ao carregar SMTPMailProvider:", errorMsg);
       console.warn("[Container] 📧 Usando ConsoleMailProvider como fallback");
+      container.registerSingleton<IMailProvider>("MailProvider", ConsoleMailProvider);
     }
-    
+  } else {
     container.registerSingleton<IMailProvider>("MailProvider", ConsoleMailProvider);
   }
 } else {
