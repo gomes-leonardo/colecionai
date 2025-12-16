@@ -5,8 +5,7 @@ WORKDIR /usr/app
 # Copiar package files
 COPY package*.json ./
 
-# Instalar dependências
-RUN npm install
+RUN npm install --include=dev
 
 # Copiar código fonte
 COPY . .
