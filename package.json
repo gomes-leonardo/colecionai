@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/shared/infra/http/server.ts",
     "build": "tsc && npx prisma generate",
+    "build:test": "npm run build && node scripts/test-build.js",
     "start:prod": "npx prisma migrate deploy && node dist/shared/infra/http/server.js",
     "test": "npm run services:up && npm run services:wait && npm run prisma:generate && jest --runInBand --verbose",
     "worker": "ts-node-dev --respawn --transpile-only src/jobs/worker.ts",
