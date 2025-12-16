@@ -43,6 +43,17 @@ app.use(
       }
     },
     credentials: true,
+    allowedHeaders: [
+      "Origin", 
+      "X-Requested-With", 
+      "Content-Type", 
+      "Accept", 
+      "Authorization",
+      "Cookie"
+    ],
+    exposedHeaders: ["Set-Cookie"],
+    preflightContinue: false,
+    optionsSuccessStatus: 204,
   })
 );
 app.use(limiter);

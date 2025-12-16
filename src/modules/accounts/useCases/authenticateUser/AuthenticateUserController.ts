@@ -15,13 +15,31 @@ export class AuthenticateUserController {
         email,
         password,
       });
-      res.cookie("token", token, {
+      // Configure cookie options
+      const cookieOptions = {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
-        sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
+        sameSite: process.env.NODE_ENV === "production" ? "none" as const : "strict" as const,
         maxAge: 60 * 60 * 24 * 30 * 1000, // 30 days
         path: "/",
-      });
+      };
+
+      res.cookie("token", token, cookieOptions);
+
+      // Manually add Partitioned attribute for production (Safari/incognito support)
+      if (process.env.NODE_ENV === "production") {
+        const existingSetCookie = res.getHeader("Set-Cookie") as string[] | string | undefined;
+        if (existingSetCookie) {
+          const cookies = Array.isArray(existingSetCookie) ? existingSetCookie : [existingSetCookie];
+          const updatedCookies = cookies.map(cookie => {
+            if (cookie.startsWith("token=")) {
+              return `${cookie}; Partitioned`;
+            }
+            return cookie;
+          });
+          res.setHeader("Set-Cookie", updatedCookies);
+        }
+      }
 
       res.set(
         "Cache-Control",
