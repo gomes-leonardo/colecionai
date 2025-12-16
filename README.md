@@ -1,172 +1,223 @@
 # Colecionai API 🚀
 
-API RESTful completa para marketplace de colecionáveis, desenvolvida com **Clean Architecture**, **Domain-Driven Design** e **TypeScript**. Sistema robusto com leilões em tempo real, autenticação segura, processamento assíncrono e cache distribuído.
+Complete RESTful API for collectibles marketplace, built with **Clean Architecture**, **Domain-Driven Design** and **TypeScript**. Robust system with real-time auctions, secure authentication, async processing and distributed cache.
 
-## 📋 Sobre o Projeto
+## 📋 About the Project
 
-O **Colecionai** é uma plataforma backend completa para marketplace de itens colecionáveis (Action Figures, Funko Pops, Mangás, Trading Cards, etc.). O sistema implementa funcionalidades avançadas como leilões em tempo real com WebSockets, sistema de notificações, filas assíncronas e cache distribuído.
+**Colecionai** is a complete backend platform for collectibles marketplace (Action Figures, Funko Pops, Manga, Trading Cards, etc.). The system implements advanced features like real-time auctions with WebSockets, notification system, async queues and distributed cache.
 
-### 🎯 Características Principais
+### 🎯 Key Features
 
-- ✅ **Arquitetura Limpa**: Clean Architecture + DDD
-- ✅ **Real-time**: WebSockets com Socket.IO para leilões
-- ✅ **Performance**: Cache Redis + Processamento Assíncrono
-- ✅ **Segurança**: JWT, Rate Limiting, Validação Rigorosa
-- ✅ **Escalável**: Filas com BullMQ, Workers, Cache distribuído
-- ✅ **Type-Safe**: 100% TypeScript com Prisma ORM
-- ✅ **CI/CD**: GitHub Actions + Deploy Automático
-- ✅ **Testes**: Unitários e Integração
+- ✅ **Clean Architecture**: Clean Architecture + DDD
+- ✅ **Real-time**: WebSockets with Socket.IO for auctions
+- ✅ **Performance**: Redis Cache + Async Processing
+- ✅ **Security**: JWT, Rate Limiting, Rigorous Validation
+- ✅ **Scalable**: Queues with BullMQ, Workers, Distributed cache
+- ✅ **Type-Safe**: 100% TypeScript with Prisma ORM
+- ✅ **CI/CD**: GitHub Actions + Automatic Deploy
+- ✅ **Tests**: Unit and Integration tests
 
-## 🛠️ Stack Tecnológico
+## 🛠️ Tech Stack
 
 ### Core
-- **Node.js 20** - Runtime JavaScript
-- **TypeScript 5.9** - Tipagem estática
-- **Express 5.1** - Framework web
+- **Node.js 20** - JavaScript runtime
+- **TypeScript 5.9** - Static typing
+- **Express 5.1** - Web framework
 
-### Banco de Dados
-- **PostgreSQL 15** - Banco relacional
-- **Prisma 7.1** - ORM type-safe
-- **Redis** - Cache e filas
+### Database
+- **PostgreSQL 15** - Relational database
+- **Prisma 7.1** - Type-safe ORM
+- **Redis** - Cache and queues
 
-### Autenticação & Segurança
-- **JWT** - Autenticação stateless
-- **bcryptjs** - Hash de senhas
-- **express-rate-limit** - Proteção DDoS
-- **Zod** - Validação de schemas
+### Authentication & Security
+- **JWT** - Stateless authentication
+- **bcryptjs** - Password hashing
+- **express-rate-limit** - DDoS protection
+- **Zod** - Schema validation
 
-### Real-time & Processamento
+### Real-time & Processing
 - **Socket.IO 4.8** - WebSockets
-- **BullMQ 5.65** - Sistema de filas
-- **Redis** - Backend para filas
+- **BullMQ 5.65** - Queue system
+- **Redis** - Queue backend
 
 ### DevOps
-- **Docker** - Containerização
+- **Docker** - Containerization
 - **GitHub Actions** - CI/CD
-- **Render.com** - Deploy em produção
+- **Render.com** - Production deploy
 
-## ✨ Funcionalidades Implementadas
+## ✨ Implemented Features
 
-### 🔐 Autenticação e Autorização
-- Cadastro com validação rigorosa
-- Login com JWT em cookie HTTP-only
-- Verificação de email com token
-- Recuperação de senha
-- Logout seguro
+### 🔐 Authentication and Authorization
+- Registration with rigorous validation
+- Login with JWT in HTTP-only cookie
+- Email verification with token
+- Password recovery
+- Secure logout
 
-### 📦 Gerenciamento de Produtos
-- CRUD completo de produtos
-- Upload de imagens (Multer)
-- 13 categorias pré-definidas
-- 3 condições (Novo, Usado, Caixa Aberta)
-- Cache Redis para performance
-- Validação de propriedade
+### 📦 Product Management
+- Complete CRUD for products
+- Image upload (Multer)
+- 13 predefined categories
+- 3 conditions (New, Used, Open Box)
+- Redis cache for performance
+- Ownership validation
 
-### 🎯 Sistema de Leilões
-- Criação e gerenciamento de leilões
-- Lances em tempo real via WebSocket
-- Notificações instantâneas:
-  - Novo lance (broadcast)
-  - Usuário superado (outbid)
-  - Notificação para dono do produto
-- Fechamento automático via worker
-- Histórico completo de lances
+### 🎯 Auction System
+- Creation and management of auctions
+- Real-time bids via WebSocket
+- Instant notifications:
+  - New bid (broadcast)
+  - User outbid
+  - Notification for product owner
+- Automatic closure via worker
+- Complete bid history
 
-### ⚡ Performance e Escalabilidade
-- Cache Redis para listagens e detalhes
-- Processamento assíncrono com BullMQ
-- Workers para emails e leilões
-- Rate limiting configurado
-- Queries otimizadas com Prisma
+### ⚡ Performance and Scalability
+- Redis cache for listings and details
+- Async processing with BullMQ
+- Workers for emails and auctions
+- Rate limiting configured
+- Optimized queries with Prisma
 
+## 📚 API Documentation
 
+### Swagger/OpenAPI
 
-## 📚 Documentação
+The API is fully documented with Swagger. Access the interactive documentation at:
 
-- **[Documentação Completa](./DOCUMENTACAO_COMPLETA.md)** - Análise detalhada de arquitetura, infraestrutura e decisões técnicas
-- **API Endpoints** - Consulte os controllers em `src/modules/*/useCases/*/`
+**Development**: http://localhost:3333/api-docs
 
-## 🚀 Como Executar o Projeto
+**Production**: https://your-api-url.com/api-docs
 
-### Pré-requisitos
+The documentation includes:
+- All endpoints with request/response schemas
+- Authentication requirements
+- Validation rules
+- Example requests and responses
+- Error codes and messages
+
+### API Endpoints Overview
+
+#### Authentication
+- `POST /sessions` - Login
+- `POST /logout` - Logout
+- `POST /users` - Register
+- `GET /me` - Get current user
+
+#### Users
+- `POST /verify` - Verify email
+- `POST /verify/resend` - Resend verification token
+- `POST /forgot-password` - Request password reset
+- `POST /reset-password` - Reset password
+
+#### Products
+- `GET /products` - List products (with filters and pagination)
+- `GET /products/:id` - Get product details
+- `GET /products/me` - Get user's products
+- `POST /products` - Create product
+- `PUT /products/:id` - Update product
+- `DELETE /products/:id` - Delete product
+- `PATCH /products/:id/image` - Update product image
+
+#### Auctions
+- `GET /auctions` - List auctions (with filters and pagination)
+- `GET /auctions/me` - Get user's auctions
+- `GET /auctions/details/:id` - Get auction details
+- `POST /auctions` - Create auction
+- `PUT /auctions/:id` - Update auction
+- `DELETE /auctions/:id` - Delete auction
+
+#### Bids
+- `POST /bids` - Create bid
+
+## 🚀 How to Run the Project
+
+### Prerequisites
 - Node.js (v18+)
-- Docker e Docker Compose
+- Docker and Docker Compose
 
-### Passo a Passo
+### Step by Step
 
-1. **Clone o repositório**
+1. **Clone the repository**
    ```bash
-   git clone https://github.com/seu-usuario/colecionai-backend.git
-   cd colecionai-backend
+   git clone https://github.com/gomes-leonardo/colecionai.git
+   cd colecionai/backend
    ```
 
-2. **Instale as dependências**
+2. **Install dependencies**
    ```bash
    npm install
    ```
 
-3. **Configure as variáveis de ambiente**
-   Copie o `.env.example` e ajuste os valores:
+3. **Configure environment variables**
+   Copy `.env.example` and adjust values:
    ```bash
    cp .env.example .env
    ```
 
-### Variáveis de ambiente
+### Environment Variables
 
-- `NODE_ENV`: ambiente de execução (`development`/`production`).
-- `JWT_SECRET`: segredo usado para assinar os tokens JWT.
-- `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASS`, `DB_NAME`: credenciais do PostgreSQL.
-- `REDIS_HOST`, `REDIS_PORT`: host e porta do Redis usado pelo BullMQ.
-- `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`: credenciais para envio de e-mails.
+- `NODE_ENV`: execution environment (`development`/`production`).
+- `JWT_SECRET`: secret used to sign JWT tokens.
+- `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASS`, `DB_NAME`: PostgreSQL credentials.
+- `REDIS_HOST`, `REDIS_PORT`: Redis host and port used by BullMQ.
+- `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`: credentials for sending emails.
+- `MAIL_PROVIDER`: email provider (`smtp` or `console`).
 
-4. **Inicie o Banco de Dados**
-   Utilize o Docker para subir o container do PostgreSQL:
+4. **Start the Database**
+   Use Docker to start PostgreSQL container:
    ```bash
    docker-compose up -d
    ```
 
-5. **Execute as Migrations**
-   Crie as tabelas no banco de dados:
+5. **Run Migrations**
+   Create database tables:
    ```bash
    npx prisma migrate dev
    ```
 
-6. **Inicie o Servidor**
+6. **Start the Server**
    ```bash
    npm run dev
    ```
-   O servidor estará rodando em `http://localhost:3333`.
+   The server will be running at `http://localhost:3333`.
 
-7. **(Opcional) Inicie o Worker de Fila**
-   Para processamento de e-mails via BullMQ/Redis:
+7. **(Optional) Start Queue Worker**
+   For email processing via BullMQ/Redis:
    ```bash
-   npx ts-node src/job/worker.ts
+   npm run worker
    ```
 
-## 🧪 Testes
+8. **Access API Documentation**
+   Open your browser and navigate to:
+   ```
+   http://localhost:3333/api-docs
+   ```
 
-Para garantir a qualidade do código, execute os testes automatizados:
+## 🧪 Testing
+
+To ensure code quality, run automated tests:
 
 ```bash
 npm test
 ```
 
-## 🏗️ Arquitetura
+## 🏗️ Architecture
 
-O projeto segue **Clean Architecture** e **DDD**, organizado em módulos de domínio:
+The project follows **Clean Architecture** and **DDD**, organized in domain modules:
 
 ```
 src/
-├── modules/          # Domínios (Accounts, Products, Auctions, Bids)
-│   ├── useCases/    # Lógica de negócio
-│   └── repositories/ # Acesso a dados
-└── shared/          # Código compartilhado
-    ├── container/   # Injeção de dependências
+├── modules/          # Domains (Accounts, Products, Auctions, Bids)
+│   ├── useCases/    # Business logic
+│   └── repositories/ # Data access
+└── shared/          # Shared code
+    ├── container/   # Dependency injection
     ├── providers/   # Cache, Mail, Queue
     └── infra/       # HTTP, Prisma
 ```
 
-### Padrões Implementados
+### Implemented Patterns
 - ✅ Repository Pattern
 - ✅ Dependency Injection (TSyringe)
 - ✅ Use Case Pattern
@@ -175,51 +226,43 @@ src/
 
 ## 🚀 Deploy
 
-### Produção (Render.com)
-- Auto-deploy do branch `main`
-- PostgreSQL gerenciado
-- Redis gerenciado
-- Migrations automáticas
-- Health checks configurados
+### Production (Render.com)
+- Auto-deploy from `main` branch
+- Managed PostgreSQL
+- Managed Redis
+- Automatic migrations
+- Health checks configured
 
-### Desenvolvimento
+### Development
 ```bash
-docker-compose up -d  # Inicia serviços
+docker-compose up -d  # Start services
 npm run dev           # API
-npm run worker        # Worker (terminal separado)
+npm run worker        # Worker (separate terminal)
 ```
 
-## 🧪 Testes
+## 📊 Statistics
 
-```bash
-npm test              # Executa todos os testes
-npm run test:watch    # Modo watch
-```
-
-- Testes unitários com Jest
-- Repositories in-memory para isolamento
-- CI/CD com GitHub Actions
-
-## 📊 Estatísticas
-
-- **+5000 linhas** de código TypeScript
+- **+5000 lines** of TypeScript code
 - **20+ endpoints** REST
-- **20+ use cases** implementados
-- **4 domínios** principais
-- **100% type-safe** com TypeScript + Prisma
+- **20+ use cases** implemented
+- **4 main domains**
+- **100% type-safe** with TypeScript + Prisma
 
-## 🎯 Diferenciais Técnicos
+## 🎯 Technical Highlights
 
-- ✅ Arquitetura escalável e manutenível
-- ✅ Real-time com WebSockets
-- ✅ Cache distribuído com Redis
-- ✅ Processamento assíncrono robusto
-- ✅ Segurança em todas as camadas
-- ✅ CI/CD automatizado
-- ✅ Código production-ready
+- ✅ Scalable and maintainable architecture
+- ✅ Real-time with WebSockets
+- ✅ Distributed cache with Redis
+- ✅ Robust async processing
+- ✅ Security in all layers
+- ✅ Automated CI/CD
+- ✅ Production-ready code
+
+## 📖 Additional Documentation
+
+- **[Portuguese README](./README.pt-BR.md)** - Documentação em português
+- **[Complete Documentation](./DOCUMENTACAO_COMPLETA.md)** - Detailed architecture, infrastructure and technical decisions analysis
 
 ---
 
-**Desenvolvido com dedicação e atenção aos detalhes por Leonardo Rodrigues**
-
-📖 Para documentação completa, consulte [DOCUMENTACAO_COMPLETA.md](./DOCUMENTACAO_COMPLETA.md)
+**Developed with dedication and attention to detail by Leonardo Rodrigues**

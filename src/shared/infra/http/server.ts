@@ -10,6 +10,9 @@ import { createServer } from "node:http";
 import { Server } from "socket.io";
 import { verify } from "jsonwebtoken";
 import { auctionEvents } from "../../events/auctionEvents";
+import swaggerUi from "swagger-ui-express";
+import { swaggerSpec } from "./swagger";
+import "./swagger-docs";
 
 const app = express();
 const port = process.env.PORT || 3333;
@@ -34,6 +37,8 @@ const io = new Server(httpServer, {
 
 app.use(express.json());
 app.use(cookieParser());
+
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.use(
   cors({
