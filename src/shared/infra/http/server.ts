@@ -139,7 +139,7 @@ httpServer.listen(port, () => {
   if (process.env.NODE_ENV === "production") {
     console.log("[Server] Iniciando worker em produção...");
     try {
-      require("../../../job/emailWorker");
+      require("../../../jobs/worker");
       console.log("[Server] Worker iniciado com sucesso!");
     } catch (err) {
       console.error("[Server] Erro ao iniciar worker:", err);
