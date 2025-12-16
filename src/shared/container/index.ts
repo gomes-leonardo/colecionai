@@ -14,6 +14,9 @@ import { IAuctionsRepository } from "../../modules/auctions/IAuctionsRepository"
 import { PrismaAuctionsRepository } from "../../modules/auctions/repositories/prisma/PrismaAuctionsRepository";
 import { IBidsRepository } from "../../modules/bids/repositories/IBidsRepository";
 import { PrismaBidsRepository } from "../../modules/bids/repositories/prisma/PrismaBidsRepository";
+import { IMailProvider } from "./providers/MailProvider/IMailProvider";
+import { ConsoleMailProvider } from "./providers/MailProvider/Implementations/ConsoleMailProvider";
+import { SMTPMailProvider } from "./providers/MailProvider/Implementations/SMTPMailProvider";
 
 container.registerSingleton<IUserRepository>(
   "UsersRepository",
@@ -46,3 +49,11 @@ container.registerSingleton<IBidsRepository>(
 );
 
 container.registerSingleton<IQueueProvider>("QueueProvider", BullQueueProvider);
+
+// MailProvider - escolhe implementação baseado na variável de ambiente
+const mailProvider = process.env.MAIL_PROVIDER || "console";
+if (mailProvider === "smtp") {
+  container.registerSingleton<IMailProvider>("MailProvider", SMTPMailProvider);
+} else {
+  container.registerSingleton<IMailProvider>("MailProvider", ConsoleMailProvider);
+}

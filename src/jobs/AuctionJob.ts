@@ -1,7 +1,9 @@
+import "reflect-metadata";
 import { Worker } from "bullmq";
 import { container } from "tsyringe";
 import { connection } from "./queue";
 import { CloseAuctionUseCase } from "../modules/auctions/useCases/closeAuctionUseCase/CloseAuctionUseCase";
+import "../../shared/container/index";
 
 export const auctionWorker = new Worker(
   "auctions",
