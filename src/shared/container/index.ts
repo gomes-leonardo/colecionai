@@ -49,12 +49,33 @@ container.registerSingleton<IBidsRepository>(
 
 container.registerSingleton<IQueueProvider>("QueueProvider", BullQueueProvider);
 
-// MailProvider - escolhe implementação baseado na variável de ambiente
 const mailProvider = process.env.MAIL_PROVIDER || "console";
 if (mailProvider === "smtp") {
-  // Importação dinâmica para evitar erro se nodemailer não estiver instalado
-  const { SMTPMailProvider } = require("./providers/MailProvider/Implementations/SMTPMailProvider");
-  container.registerSingleton<IMailProvider>("MailProvider", SMTPMailProvider);
+  try {
+    const smtpModule = require("./providers/MailProvider/Implementations/SMTPMailProvider");
+    const SMTPMailProvider = smtpModule.SMTPMailProvider;
+    
+    if (!SMTPMailProvider) {
+      throw new Error("SMTPMailProvider não encontrado no módulo");
+    }
+    
+    container.registerSingleton<IMailProvider>("MailProvider", SMTPMailProvider);
+    console.log("[Container] ✅ SMTPMailProvider registrado com sucesso");
+  } catch (error: any) {
+    const errorMsg = error?.message || String(error);
+    const isModuleNotFound = error?.code === "MODULE_NOT_FOUND" || errorMsg.includes("Cannot find module");
+    
+    if (isModuleNotFound) {
+      console.warn("[Container] ⚠️  nodemailer não está instalado");
+      console.warn("[Container] 📧 Usando ConsoleMailProvider (emails serão logados no console)");
+    } else {
+      console.warn("[Container] ⚠️  Erro ao carregar SMTPMailProvider:", errorMsg);
+      console.warn("[Container] 📧 Usando ConsoleMailProvider como fallback");
+    }
+    
+    container.registerSingleton<IMailProvider>("MailProvider", ConsoleMailProvider);
+  }
 } else {
   container.registerSingleton<IMailProvider>("MailProvider", ConsoleMailProvider);
+  console.log("[Container] 📧 ConsoleMailProvider registrado (emails serão logados no console)");
 }

@@ -1,47 +1,90 @@
 # Colecionai API 🚀
 
-Bem-vindo ao repositório da API do **Colecionai**, uma plataforma dedicada ao marketplace de itens colecionáveis. Este projeto foi desenvolvido com foco em boas práticas de engenharia de software, arquitetura limpa e escalabilidade.
+API RESTful completa para marketplace de colecionáveis, desenvolvida com **Clean Architecture**, **Domain-Driven Design** e **TypeScript**. Sistema robusto com leilões em tempo real, autenticação segura, processamento assíncrono e cache distribuído.
 
 ## 📋 Sobre o Projeto
 
-O **Colecionai** é uma aplicação backend construída para gerenciar um ecossistema de compra e venda de colecionáveis (como Action Figures, Funko Pops, Mangás, etc.). O sistema gerencia usuários, autenticação segura, e o ciclo de vida dos produtos.
+O **Colecionai** é uma plataforma backend completa para marketplace de itens colecionáveis (Action Figures, Funko Pops, Mangás, Trading Cards, etc.). O sistema implementa funcionalidades avançadas como leilões em tempo real com WebSockets, sistema de notificações, filas assíncronas e cache distribuído.
 
-A arquitetura do projeto segue os princípios de **Clean Architecture** e **DDD (Domain-Driven Design)**, garantindo desacoplamento e facilidade de manutenção.
+### 🎯 Características Principais
 
-## 🛠️ Tecnologias Utilizadas
+- ✅ **Arquitetura Limpa**: Clean Architecture + DDD
+- ✅ **Real-time**: WebSockets com Socket.IO para leilões
+- ✅ **Performance**: Cache Redis + Processamento Assíncrono
+- ✅ **Segurança**: JWT, Rate Limiting, Validação Rigorosa
+- ✅ **Escalável**: Filas com BullMQ, Workers, Cache distribuído
+- ✅ **Type-Safe**: 100% TypeScript com Prisma ORM
+- ✅ **CI/CD**: GitHub Actions + Deploy Automático
+- ✅ **Testes**: Unitários e Integração
 
-O projeto foi desenvolvido utilizando as seguintes tecnologias e ferramentas:
+## 🛠️ Stack Tecnológico
 
-- **Node.js** & **Express**: Base sólida e performática para a API.
-- **TypeScript**: Tipagem estática para maior segurança e produtividade.
-- **Prisma ORM**: Manipulação eficiente do banco de dados.
-- **PostgreSQL**: Banco de dados relacional robusto.
-- **Zod**: Validação de esquemas e dados de entrada.
-- **JWT (JSON Web Token)**: Autenticação segura e stateless.
-- **Multer**: Upload de imagens dos produtos.
-- **Jest**: Testes unitários e de integração.
-- **Docker**: Containerização do ambiente de desenvolvimento (Banco de dados).
+### Core
+- **Node.js 20** - Runtime JavaScript
+- **TypeScript 5.9** - Tipagem estática
+- **Express 5.1** - Framework web
 
-## ✨ Funcionalidades
+### Banco de Dados
+- **PostgreSQL 15** - Banco relacional
+- **Prisma 7.1** - ORM type-safe
+- **Redis** - Cache e filas
 
-- **Gerenciamento de Contas**:
-  - Cadastro de usuários.
-  - Autenticação (Login) com geração de Token JWT.
-  - Validação rigorosa de dados (Email, Senha forte).
+### Autenticação & Segurança
+- **JWT** - Autenticação stateless
+- **bcryptjs** - Hash de senhas
+- **express-rate-limit** - Proteção DDoS
+- **Zod** - Validação de schemas
 
-- **Gerenciamento de Produtos**:
-  - Criação de anúncios de colecionáveis.
-  - Upload de imagens do produto.
-  - Listagem de produtos disponíveis.
-  - Listagem de produtos do próprio usuário.
-  - Edição e remoção de produtos.
-  - Categorização (Action Figures, Mangás, etc.) e Condição (Novo, Usado).
+### Real-time & Processamento
+- **Socket.IO 4.8** - WebSockets
+- **BullMQ 5.65** - Sistema de filas
+- **Redis** - Backend para filas
+
+### DevOps
+- **Docker** - Containerização
+- **GitHub Actions** - CI/CD
+- **Render.com** - Deploy em produção
+
+## ✨ Funcionalidades Implementadas
+
+### 🔐 Autenticação e Autorização
+- Cadastro com validação rigorosa
+- Login com JWT em cookie HTTP-only
+- Verificação de email com token
+- Recuperação de senha
+- Logout seguro
+
+### 📦 Gerenciamento de Produtos
+- CRUD completo de produtos
+- Upload de imagens (Multer)
+- 13 categorias pré-definidas
+- 3 condições (Novo, Usado, Caixa Aberta)
+- Cache Redis para performance
+- Validação de propriedade
+
+### 🎯 Sistema de Leilões
+- Criação e gerenciamento de leilões
+- Lances em tempo real via WebSocket
+- Notificações instantâneas:
+  - Novo lance (broadcast)
+  - Usuário superado (outbid)
+  - Notificação para dono do produto
+- Fechamento automático via worker
+- Histórico completo de lances
+
+### ⚡ Performance e Escalabilidade
+- Cache Redis para listagens e detalhes
+- Processamento assíncrono com BullMQ
+- Workers para emails e leilões
+- Rate limiting configurado
+- Queries otimizadas com Prisma
 
 
 
-## 📚 Documentação da API
+## 📚 Documentação
 
-Para detalhes completos sobre os endpoints, formatos de requisição e resposta, consulte o arquivo [API_DOCUMENTATION.md](./API_DOCUMENTATION.md).
+- **[Documentação Completa](./DOCUMENTACAO_COMPLETA.md)** - Análise detalhada de arquitetura, infraestrutura e decisões técnicas
+- **API Endpoints** - Consulte os controllers em `src/modules/*/useCases/*/`
 
 ## 🚀 Como Executar o Projeto
 
@@ -108,14 +151,75 @@ Para garantir a qualidade do código, execute os testes automatizados:
 npm test
 ```
 
-## 🔮 Roadmap e Próximos Passos
+## 🏗️ Arquitetura
 
-O projeto está em constante evolução. As próximas funcionalidades planejadas são:
+O projeto segue **Clean Architecture** e **DDD**, organizado em módulos de domínio:
 
-- **Sistema de Leilão**: Implementação de lances em tempo real para itens raros.
-- **Recuperação de Senha**: Validação de token gerado por email utilizando **Redis** e **BullMQ** para filas de processamento.
-- **Pagamentos**: Integração com gateway de pagamentos.
+```
+src/
+├── modules/          # Domínios (Accounts, Products, Auctions, Bids)
+│   ├── useCases/    # Lógica de negócio
+│   └── repositories/ # Acesso a dados
+└── shared/          # Código compartilhado
+    ├── container/   # Injeção de dependências
+    ├── providers/   # Cache, Mail, Queue
+    └── infra/       # HTTP, Prisma
+```
+
+### Padrões Implementados
+- ✅ Repository Pattern
+- ✅ Dependency Injection (TSyringe)
+- ✅ Use Case Pattern
+- ✅ Provider Pattern
+- ✅ Event-Driven Architecture
+
+## 🚀 Deploy
+
+### Produção (Render.com)
+- Auto-deploy do branch `main`
+- PostgreSQL gerenciado
+- Redis gerenciado
+- Migrations automáticas
+- Health checks configurados
+
+### Desenvolvimento
+```bash
+docker-compose up -d  # Inicia serviços
+npm run dev           # API
+npm run worker        # Worker (terminal separado)
+```
+
+## 🧪 Testes
+
+```bash
+npm test              # Executa todos os testes
+npm run test:watch    # Modo watch
+```
+
+- Testes unitários com Jest
+- Repositories in-memory para isolamento
+- CI/CD com GitHub Actions
+
+## 📊 Estatísticas
+
+- **+5000 linhas** de código TypeScript
+- **20+ endpoints** REST
+- **20+ use cases** implementados
+- **4 domínios** principais
+- **100% type-safe** com TypeScript + Prisma
+
+## 🎯 Diferenciais Técnicos
+
+- ✅ Arquitetura escalável e manutenível
+- ✅ Real-time com WebSockets
+- ✅ Cache distribuído com Redis
+- ✅ Processamento assíncrono robusto
+- ✅ Segurança em todas as camadas
+- ✅ CI/CD automatizado
+- ✅ Código production-ready
 
 ---
 
-Desenvolvido com 💜 por Leonardo Rodrigues.
+**Desenvolvido com dedicação e atenção aos detalhes por Leonardo Rodrigues**
+
+📖 Para documentação completa, consulte [DOCUMENTACAO_COMPLETA.md](./DOCUMENTACAO_COMPLETA.md)
