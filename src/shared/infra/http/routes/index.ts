@@ -38,6 +38,7 @@ import { UpdateAuctionController } from "../../../../modules/auctions/useCases/u
 import { DeleteAuctionController } from "../../../../modules/auctions/useCases/deleteAuction/DeleteAuctionController";
 import { ListAuctionsDetailsController } from "../../../../modules/auctions/useCases/listAuctionDetails/ListAuctionDetailsController";
 import { CreateBidController } from "../../../../modules/bids/useCases/CreateBidController";
+import { LoadProfileInformationController } from "../../../../modules/accounts/useCases/loadProfileInformation/LoadProfileInformationController";
 
 const router = Router();
 
@@ -56,6 +57,7 @@ const authenticateUserController = new AuthenticateUserController();
 const loadUserProfileController = new LoadUserProfileController();
 const logoutUserController = new LogoutUserController();
 const sendPasswordToken = new CreateForgotPasswordTokenController();
+const profileInformationController = new LoadProfileInformationController();
 
 const createAuctionController = new CreateAuctionController();
 const listAuctionController = new ListAuctionsController();
@@ -77,7 +79,7 @@ router.get("/me", ensureAuthenticated, loadUserProfileController.handle);
 
 router.post("/verify", verifyEmailToken.handle);
 router.post("/verify/resend", sendVerificationToken.handle);
-
+router.get("/profile/:id", profileInformationController.handle);
 router.post("/forgot-password", sendPasswordToken.handle);
 router.post(
   "/reset-password",
