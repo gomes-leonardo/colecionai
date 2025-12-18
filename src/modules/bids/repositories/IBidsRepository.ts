@@ -9,4 +9,5 @@ export interface ICreateBidDTO {
 export interface IBidsRepository {
   create(data: ICreateBidDTO): Promise<Bid>;
   findHighestBid(auction_id: string): Promise<Bid | null>;
+  findByUser(user_id: string): Promise<Bid[] | null>;
 }

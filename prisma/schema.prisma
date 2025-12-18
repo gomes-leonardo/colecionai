@@ -61,6 +61,7 @@ model User {
   is_verified Boolean     @default(false)
   products    Product[]
   usertoken   UserToken[]
+  
   bids        Bid[]
 
   @@map("users")

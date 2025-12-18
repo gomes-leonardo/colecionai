@@ -2,6 +2,7 @@ import { inject, injectable } from "tsyringe";
 import { IAuctionsRepository } from "../../IAuctionsRepository";
 import { AppError } from "../../../../shared/errors/AppError";
 import { ICacheProvider } from "../../../../shared/container/providers/CacheProvider/ICacheProvider";
+import { AuctionStatus } from "@prisma/client";
 
 interface IRequest {
   auction_id: string;
@@ -9,6 +10,7 @@ interface IRequest {
   start_date?: Date;
   end_date?: Date;
   start_price?: number;
+  status?: AuctionStatus;
 }
 
 @injectable()
@@ -25,6 +27,7 @@ export class UpdateAuctionUseCase {
     start_date,
     start_price,
     user_id,
+    status,
   }: IRequest) {
     const auction = (await this.auctionsRepository.findById(auction_id)) as any;
 
@@ -46,6 +49,7 @@ export class UpdateAuctionUseCase {
       end_date,
       start_date,
       start_price,
+      status,
     });
 
     await this.cacheProvider.invalidatePrefix("auctions-list");

@@ -71,18 +71,35 @@ if (mailProvider === "smtp") {
         throw new Error("SMTPMailProvider não encontrado no módulo");
       }
 
-      container.registerSingleton<IMailProvider>("MailProvider", SMTPMailProvider);
+      container.registerSingleton<IMailProvider>(
+        "MailProvider",
+        SMTPMailProvider
+      );
       console.log("[Container] ✅ SMTPMailProvider registrado com sucesso");
     } catch (error: any) {
       const errorMsg = error?.message || String(error);
-      console.warn("[Container] ⚠️  Erro ao carregar SMTPMailProvider:", errorMsg);
+      console.warn(
+        "[Container] ⚠️  Erro ao carregar SMTPMailProvider:",
+        errorMsg
+      );
       console.warn("[Container] 📧 Usando ConsoleMailProvider como fallback");
-      container.registerSingleton<IMailProvider>("MailProvider", ConsoleMailProvider);
+      container.registerSingleton<IMailProvider>(
+        "MailProvider",
+        ConsoleMailProvider
+      );
     }
   } else {
-    container.registerSingleton<IMailProvider>("MailProvider", ConsoleMailProvider);
+    container.registerSingleton<IMailProvider>(
+      "MailProvider",
+      ConsoleMailProvider
+    );
   }
 } else {
-  container.registerSingleton<IMailProvider>("MailProvider", ConsoleMailProvider);
-  console.log("[Container] 📧 ConsoleMailProvider registrado (emails serão logados no console)");
+  container.registerSingleton<IMailProvider>(
+    "MailProvider",
+    ConsoleMailProvider
+  );
+  console.log(
+    "[Container] 📧 ConsoleMailProvider registrado (emails serão logados no console)"
+  );
 }

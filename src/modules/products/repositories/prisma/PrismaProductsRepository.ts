@@ -40,6 +40,7 @@ export class PrismaProductsRepository implements IProductsRepository {
         name: name ? { contains: name, mode: "insensitive" } : undefined,
         category: category ? { equals: category } : undefined,
         condition: condition ? { equals: condition } : undefined,
+        auction: { is: null },
       },
     });
   }
