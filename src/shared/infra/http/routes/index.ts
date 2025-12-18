@@ -37,8 +37,9 @@ import { ListMyAuctionsController } from "../../../../modules/auctions/useCases/
 import { UpdateAuctionController } from "../../../../modules/auctions/useCases/updateAuction/UpdateAuctionController";
 import { DeleteAuctionController } from "../../../../modules/auctions/useCases/deleteAuction/DeleteAuctionController";
 import { ListAuctionsDetailsController } from "../../../../modules/auctions/useCases/listAuctionDetails/ListAuctionDetailsController";
-import { CreateBidController } from "../../../../modules/bids/useCases/CreateBidController";
 import { LoadProfileInformationController } from "../../../../modules/accounts/useCases/loadProfileInformation/LoadProfileInformationController";
+import { CreateBidController } from "../../../../modules/bids/useCases/createBid/CreateBidController";
+import { ListUserBidsController } from "../../../../modules/bids/useCases/listUserBids/ListUserBidsController";
 
 const router = Router();
 
@@ -66,6 +67,7 @@ const listAuctionDetailsController = new ListAuctionsDetailsController();
 const updateAuctionController = new UpdateAuctionController();
 const deleteAuctionController = new DeleteAuctionController();
 const createBidController = new CreateBidController();
+const listUserBidsController = new ListUserBidsController();
 const upload = multer(uploadConfig);
 
 // USERS
@@ -169,4 +171,6 @@ router.delete(
 // BIDS
 
 router.post("/bids/", ensureAuthenticated, createBidController.handle);
+router.get("/bids/me", ensureAuthenticated, listUserBidsController.handle);
+
 export default router;

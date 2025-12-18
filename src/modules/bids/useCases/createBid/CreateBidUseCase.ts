@@ -1,10 +1,9 @@
 import { injectable, inject } from "tsyringe";
-import { IBidsRepository } from "../repositories/IBidsRepository";
-import { IAuctionsRepository } from "../../auctions/IAuctionsRepository";
-import { AppError } from "../../../shared/errors/AppError";
-import { IProductsRepository } from "../../products/repositories/IProductsRepository";
-import { auctionEvents } from "../../../shared/events/auctionEvents";
-import { IUserRepository } from "../../accounts/repositories/IUserRepository";
+import { AppError } from "../../../../shared/errors/AppError";
+import { auctionEvents } from "../../../../shared/events/auctionEvents";
+import { IUserRepository } from "../../../accounts/repositories/IUserRepository";
+import { IAuctionsRepository } from "../../../auctions/IAuctionsRepository";
+import { IBidsRepository } from "../../repositories/IBidsRepository";
 
 interface ICreateBid {
   amount: number;

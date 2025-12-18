@@ -1,4 +1,9 @@
-import { Product, ProductCategory, ProductCondition } from "@prisma/client";
+import {
+  Auction,
+  Product,
+  ProductCategory,
+  ProductCondition,
+} from "@prisma/client";
 
 export interface ICreateProductDTO {
   name: string;
@@ -14,6 +19,7 @@ export interface IListProductDTO {
   name?: string;
   category?: ProductCategory;
   condition?: ProductCondition;
+  auction?: Auction;
 }
 
 export type ProductDetailsDTO = Product & {

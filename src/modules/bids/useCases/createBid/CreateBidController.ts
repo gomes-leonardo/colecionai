@@ -2,8 +2,7 @@ import { Request, Response } from "express";
 import { container } from "tsyringe";
 import { CreateBidUseCase } from "./CreateBidUseCase";
 import { z } from "zod";
-import { bidSchema } from "../../../schemas/bidSchema";
-import { io } from "../../../shared/infra/http/server";
+import { io } from "../../../../shared/infra/http/server";
 
 export class CreateBidController {
   async handle(req: Request, res: Response): Promise<Response> {

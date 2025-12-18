@@ -1,5 +1,5 @@
 import { injectable, inject } from "tsyringe";
-import { IBidsRepository } from "../repositories/IBidsRepository";
+import { IBidsRepository } from "../../repositories/IBidsRepository";
 
 @injectable()
 export class ListHighestBidUseCase {
