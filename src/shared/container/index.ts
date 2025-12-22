@@ -16,6 +16,8 @@ import { IBidsRepository } from "../../modules/bids/repositories/IBidsRepository
 import { PrismaBidsRepository } from "../../modules/bids/repositories/prisma/PrismaBidsRepository";
 import { IMailProvider } from "./providers/MailProvider/IMailProvider";
 import { ConsoleMailProvider } from "./providers/MailProvider/Implementations/ConsoleMailProvider";
+import { IFeedbacksRepository } from "../../modules/feedbacks/repositories/IFeedbacksRepository";
+import { PrismaFeedbacksRepository } from "../../modules/feedbacks/repositories/prisma/PrismaFeedbacksRepository";
 
 container.registerSingleton<IUserRepository>(
   "UsersRepository",
@@ -45,6 +47,11 @@ container.registerSingleton<IAuctionsRepository>(
 container.registerSingleton<IBidsRepository>(
   "BidsRepository",
   PrismaBidsRepository
+);
+
+container.registerSingleton<IFeedbacksRepository>(
+  "FeedbacksRepository",
+  PrismaFeedbacksRepository
 );
 
 container.registerSingleton<IQueueProvider>("QueueProvider", BullQueueProvider);
