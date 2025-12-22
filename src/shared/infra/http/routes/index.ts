@@ -40,6 +40,8 @@ import { ListAuctionsDetailsController } from "../../../../modules/auctions/useC
 import { LoadProfileInformationController } from "../../../../modules/accounts/useCases/loadProfileInformation/LoadProfileInformationController";
 import { CreateBidController } from "../../../../modules/bids/useCases/createBid/CreateBidController";
 import { ListUserBidsController } from "../../../../modules/bids/useCases/listUserBids/ListUserBidsController";
+import { CreateFeedbackController } from "../../../../modules/feedbacks/useCases/createFeedback/CreateFeedbackController";
+import { ListFeedbackController } from "../../../../modules/feedbacks/useCases/listFeedbacks/ListFeedbackController";
 
 const router = Router();
 
@@ -68,6 +70,10 @@ const updateAuctionController = new UpdateAuctionController();
 const deleteAuctionController = new DeleteAuctionController();
 const createBidController = new CreateBidController();
 const listUserBidsController = new ListUserBidsController();
+
+const createFeedbackController = new CreateFeedbackController();
+const listFeedbackController = new ListFeedbackController();
+
 const upload = multer(uploadConfig);
 
 // USERS
@@ -172,5 +178,9 @@ router.delete(
 
 router.post("/bids/", ensureAuthenticated, createBidController.handle);
 router.get("/bids/me", ensureAuthenticated, listUserBidsController.handle);
+
+// FEEDBACKS
+router.post("/feedback", createFeedbackController.handle);
+router.get("/feedbacks", listFeedbackController.handle);
 
 export default router;

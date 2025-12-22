@@ -34,6 +34,25 @@ enum ProductCategory {
   RARE_COLLECTIBLES
 }
 
+enum FeedbackType {
+  BUG         
+  SUGGESTION 
+  COMPLIMENT  
+  OTHER
+}
+
+model Feedback {
+  id          String           @id @default(uuid())
+  type         FeedbackType @default(OTHER)
+  message      String       @db.Text
+  rating       Int          
+  visitor_name String?      @db.VarChar(100) 
+  context      String?      
+  created_at   DateTime     @default(now())
+
+  @@map("feedbacks")
+}
+
 model Product {
   id          String           @id @default(uuid())
   name        String           @db.VarChar(255)
