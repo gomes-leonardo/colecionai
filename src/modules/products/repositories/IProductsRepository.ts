@@ -33,4 +33,5 @@ export interface IProductsRepository {
   findById(id: string): Promise<ProductDetailsDTO | null>;
   update(product: Product): Promise<Product>;
   delete(id: string): Promise<void>;
+  updateStatus(id: string, status: "AVAILABLE" | "SOLD" | "IN_AUCTION" | "RESERVED"): Promise<Product>;
 }

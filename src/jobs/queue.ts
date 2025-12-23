@@ -8,13 +8,15 @@ const redisConfig: RedisOptions = {
   maxRetriesPerRequest: null,
   connectTimeout: 5000,
   retryStrategy: (times) => {
-    if (times > 3) {
-      console.warn("[Redis Queue] Não foi possível conectar após 3 tentativas");
+    if (times > 1) {
       return null;
     }
-    return Math.min(times * 200, 2000);
+    return 100;
   },
   lazyConnect: true,
+  enableReadyCheck: false,
+  enableOfflineQueue: false,
+  showFriendlyErrorStack: false,
 };
 
 if (process.env.REDIS_PASSWORD) {
@@ -25,12 +27,20 @@ if (process.env.REDIS_PASSWORD) {
 
 const connection = new Redis(redisConfig);
 
-// Suprime erros de conexão em desenvolvimento - filas são opcionais
-connection.on('error', (err) => {
-  if (process.env.NODE_ENV === 'production') {
-    console.error('[Redis Queue] Erro de conexão:', err.message);
+let errorLogged = false;
+connection.on("error", (err: any) => {
+  if (err?.code === "ECONNREFUSED") {
+    if (process.env.NODE_ENV !== "production" && !errorLogged) {
+      console.warn("[Redis Queue] ⚠️  Redis não está disponível. Filas de jobs não funcionarão.");
+      console.warn("[Redis Queue] 💡 Para habilitar: docker compose up redis -d");
+      errorLogged = true;
+    }
+    return;
   }
-  // Em desenvolvimento, suprime completamente os erros
+  
+  if (process.env.NODE_ENV === "production") {
+    console.error("[Redis Queue] Erro de conexão:", err?.message || err);
+  }
 });
 
 export const emailQueue = new Queue("emails", { connection });

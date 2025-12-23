@@ -29,7 +29,10 @@ jobs:
           DATABASE_URL: "postgresql://dummy:dummy@localhost:5432/dummy"
 
       - name: Run Tests
-        run: npm test
+        run: npm run test:ci
         env:
           DATABASE_URL: "postgresql://dummy:dummy@localhost:5432/dummy"
           JWT_SECRET: "segredo-de-teste-do-ci"
+          NODE_ENV: "test"
+          REDIS_URL: ""
+        continue-on-error: false
