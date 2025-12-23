@@ -29,6 +29,39 @@ export class CreateProductUseCase {
     category,
     condition,
   }: IRequest) {
+    // Validações
+    if (!name || name.trim() === "") {
+      throw new AppError("Campo nome é obrigatório.", 400);
+    }
+
+    if (price === null || price === undefined) {
+      throw new AppError("Campo preço é obrigatório.", 400);
+    }
+
+    if (price <= 0) {
+      throw new AppError("Preço deve ser maior que zero.", 400);
+    }
+
+    if (!description || description.trim() === "") {
+      throw new AppError("Campo descrição é obrigatório.", 400);
+    }
+
+    if (!category) {
+      throw new AppError("Campo category é obrigatório", 400);
+    }
+
+    if (!Object.values(ProductCategory).includes(category)) {
+      throw new AppError("Categoria inexistente", 400);
+    }
+
+    if (!condition) {
+      throw new AppError("Campo condição é obrigatório", 400);
+    }
+
+    if (!Object.values(ProductCondition).includes(condition)) {
+      throw new AppError("Condição inexistente", 400);
+    }
+
     const product = await this.productsRepository.create({
       name,
       price,

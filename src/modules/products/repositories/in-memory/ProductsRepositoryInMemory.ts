@@ -25,6 +25,7 @@ export class ProductsRepositoryInMemory implements IProductsRepository {
       price,
       user_id: userId,
       banner: banner || null,
+      status: "AVAILABLE",
       created_at: new Date(),
       updated_at: new Date(),
       description: description,
@@ -38,6 +39,11 @@ export class ProductsRepositoryInMemory implements IProductsRepository {
 
   async list(filters?: IListProductDTO): Promise<Product[]> {
     let filteredProducts = [...this.products];
+
+    // Filtrar apenas produtos disponíveis (como no Prisma)
+    filteredProducts = filteredProducts.filter(
+      (product) => product.status === "AVAILABLE"
+    );
 
     if (filters?.name) {
       filteredProducts = filteredProducts.filter((product) =>
@@ -86,5 +92,23 @@ export class ProductsRepositoryInMemory implements IProductsRepository {
     const findIndex = this.products.findIndex((product) => product.id === id);
 
     this.products.splice(findIndex, 1);
+  }
+
+  async updateStatus(
+    id: string,
+    status: "AVAILABLE" | "SOLD" | "IN_AUCTION" | "RESERVED"
+  ): Promise<Product> {
+    const findIndex = this.products.findIndex((product) => product.id === id);
+    
+    if (findIndex === -1) {
+      throw new Error("Product not found");
+    }
+
+    this.products[findIndex] = {
+      ...this.products[findIndex],
+      status,
+    };
+
+    return this.products[findIndex];
   }
 }
