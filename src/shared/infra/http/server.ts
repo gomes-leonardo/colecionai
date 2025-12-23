@@ -1,4 +1,7 @@
 import "reflect-metadata";
+import dotenv from "dotenv";
+dotenv.config();
+
 import express from "express";
 import router from "./routes";
 import "../../../shared/container/index";
@@ -8,15 +11,15 @@ import cookieParser from "cookie-parser";
 import { limiter } from "./middlewares/rateLimiter";
 import { createServer } from "node:http";
 import { Server } from "socket.io";
-import { verify } from "jsonwebtoken";
-import { auctionEvents } from "../../events/auctionEvents";
 import swaggerUi from "swagger-ui-express";
 import { swaggerSpec } from "./swagger";
 import "./swagger-docs";
+import { WebSocketService } from "./websockets/WebSocketService";
 
 const app = express();
 const port = process.env.PORT || 3333;
 const httpServer = createServer(app);
+const webSocketService = new WebSocketService(httpServer);
 
 if (process.env.NODE_ENV === "production") {
   app.set("trust proxy", true);
@@ -27,13 +30,7 @@ const allowedOrigins = [
   "https://colecionai-front.vercel.app",
 ];
 
-const io = new Server(httpServer, {
-  cors: {
-    origin: allowedOrigins,
-    methods: ["GET", "POST"],
-    credentials: true,
-  },
-});
+const io = webSocketService.getIO();
 
 app.use(express.json());
 app.use(cookieParser());
@@ -69,79 +66,6 @@ app.use(limiter);
 app.use(router);
 app.use("/files", express.static("tmp"));
 app.use(globalError);
-
-io.use((socket, next) => {
-  const cookies = socket.handshake.headers.cookie;
-
-  if (!cookies) {
-    return next(new Error("Token missing"));
-  }
-
-  const tokenMatch = cookies.match(/token=([^;]+)/);
-  const token = tokenMatch ? tokenMatch[1] : null;
-
-  if (!token) {
-    return next(new Error("Token missing"));
-  }
-
-  try {
-    if (!process.env.JWT_SECRET) return next(new Error("JWT secret missing"));
-
-    const { sub } = verify(token, process.env.JWT_SECRET);
-    (socket as any).user_id = sub;
-
-    return next();
-  } catch (error) {
-    return next(new Error("Invalid token"));
-  }
-});
-
-io.on("connection", (socket) => {
-  const user_id = (socket as any).user_id;
-
-  socket.join(user_id);
-
-  console.log(`⚡ Usuário conectado: ${user_id}`);
-
-  socket.on("join_auction", ({ auction_id }) => {
-    socket.join(auction_id);
-  });
-
-  socket.on("leave_auction", ({ auction_id }) => {
-    socket.leave(auction_id);
-  });
-});
-
-auctionEvents.on("bid:created", (bid) => {
-  console.log(
-    `📢 Update Público: Lance de ${bid.amount} no leilão ${bid.auction_id}`
-  );
-  io.to(bid.auction_id).emit("new_bid", bid);
-});
-
-auctionEvents.on("bid:outbid", (data) => {
-  console.log(
-    `⚠️ OUTBID: Avisando ${data.username} que perdeu para ${data.newAmount}`
-  );
-
-  io.to(data.recipient_id).emit("notification", {
-    type: "OUTBID",
-    title: "Você foi superado!",
-    message: `Alguém deu um lance de R$ ${data.newAmount} em ${data.productName}.`,
-    data,
-  });
-});
-
-auctionEvents.on("bid:received", (data) => {
-  console.log(`💰 OWNER: Avisando dono (${data.username}) sobre novo lance`);
-
-  io.to(data.recipient_id).emit("notification", {
-    type: "OWNER_NEW_BID",
-    title: "Novo Lance Recebido!",
-    message: `Seu produto ${data.productName} recebeu um lance de R$ ${data.amount}.`,
-    data,
-  });
-});
 
 httpServer.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);

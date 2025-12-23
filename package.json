@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "ts-node-dev --respawn --transpile-only src/shared/infra/http/server.ts",
+    "kill-port": "lsof -ti:3333 | xargs kill -9 2>/dev/null || true",
+    "dev": "npm run kill-port && tsx watch src/shared/infra/http/server.ts",
     "build": "tsc && npx prisma generate",
     "build:test": "npm run build && node scripts/test-build.js",
     "start:prod": "npx prisma migrate deploy && node dist/shared/infra/http/server.js",
@@ -24,6 +25,7 @@
   "dependencies": {
     "@prisma/adapter-pg": "^7.1.0",
     "@prisma/client": "^7.1.0",
+    "@socket.io/redis-adapter": "^8.3.0",
     "bcryptjs": "^3.0.3",
     "bullmq": "^5.65.1",
     "cookie-parser": "^1.4.7",
@@ -38,6 +40,7 @@
     "nodemailer": "^7.0.11",
     "pg": "^8.16.3",
     "prisma": "^7.1.0",
+    "redis": "^5.10.0",
     "reflect-metadata": "^0.2.2",
     "socket.io": "^4.8.1",
     "swagger-jsdoc": "^6.2.8",
@@ -58,9 +61,11 @@
     "@types/pg": "^8.15.6",
     "@types/swagger-jsdoc": "^6.0.4",
     "@types/swagger-ui-express": "^4.1.8",
+    "chokidar": "^5.0.0",
     "jest": "^30.2.0",
     "ts-jest": "^29.4.5",
     "ts-node-dev": "^2.0.0",
+    "tsx": "^4.21.0",
     "typescript": "^5.9.3",
     "wait-on": "^9.0.3"
   }

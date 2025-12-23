@@ -4,6 +4,7 @@ import { auctionEvents } from "../../../../shared/events/auctionEvents";
 import { IUserRepository } from "../../../accounts/repositories/IUserRepository";
 import { IAuctionsRepository } from "../../../auctions/IAuctionsRepository";
 import { IBidsRepository } from "../../repositories/IBidsRepository";
+import prisma from "../../../../shared/infra/prisma";
 
 interface ICreateBid {
   amount: number;
@@ -68,10 +69,36 @@ export class CreateBidUseCase {
       throw new AppError(`O lance deve ser maior que ${currentPrice}`, 400);
     }
 
-    const bid = await this.bidsRepository.create({
-      auction_id,
-      user_id,
-      amount,
+    // Usar transaction para garantir atomicidade e evitar race conditions
+    const bid = await prisma.$transaction(async (tx) => {
+      // Re-verificar o maior lance dentro da transaction (pessimistic locking)
+      const highestBidInTx = await tx.bid.findFirst({
+        where: { auction_id },
+        orderBy: { amount: "desc" },
+      });
+
+      const currentPriceInTx = highestBidInTx
+        ? Number(highestBidInTx.amount)
+        : Number(auction.start_price);
+
+      // Validar novamente dentro da transaction
+      if (amount <= currentPriceInTx) {
+        throw new AppError(
+          `O lance deve ser maior que ${currentPriceInTx}. Outro lance foi feito simultaneamente.`,
+          400
+        );
+      }
+
+      // Criar o lance dentro da transaction
+      const newBid = await tx.bid.create({
+        data: {
+          auction_id,
+          user_id,
+          amount,
+        },
+      });
+
+      return newBid;
     });
 
     auctionEvents.emit("bid:created", {
