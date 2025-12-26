@@ -13,9 +13,16 @@ enum ProductCondition {
 }
 
 enum AuctionStatus {
-  OPEN      
-  CLOSED   
+  OPEN       
+  CLOSED    
   CANCELLED 
+}
+
+enum ProductStatus {
+  AVAILABLE
+  SOLD
+  IN_AUCTION
+  RESERVED
 }
 
 enum ProductCategory {
@@ -35,17 +42,17 @@ enum ProductCategory {
 }
 
 enum FeedbackType {
-  BUG         
+  BUG           
   SUGGESTION 
   COMPLIMENT  
   OTHER
 }
 
 model Feedback {
-  id          String           @id @default(uuid())
+  id           String       @id @default(uuid())
   type         FeedbackType @default(OTHER)
   message      String       @db.Text
-  rating       Int          
+  rating       Int       
   visitor_name String?      @db.VarChar(100) 
   context      String?      
   created_at   DateTime     @default(now())
@@ -60,53 +67,65 @@ model Product {
   description String           @db.Text
   category    ProductCategory
   condition   ProductCondition
+  status      ProductStatus    @default(AVAILABLE)
   user_id     String
   banner      String?          @db.VarChar(255)
   created_at  DateTime         @default(now()) @db.Timestamp(6)
   updated_at  DateTime         @updatedAt
+  
   auction     Auction?
+  user        User             @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
-  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  conversations Conversation[]
+  orders      Order[]
 
   @@map("products")
 }
 
 model User {
-  id          String      @id @default(uuid())
-  name        String      @db.VarChar(255)
-  email       String      @unique @db.VarChar(255)
-  password    String      @db.VarChar(255)
-  created_at  DateTime    @default(now()) @db.Timestamp(6)
-  is_verified Boolean     @default(false)
+  id          String    @id @default(uuid())
+  name        String    @db.VarChar(255)
+  email       String    @unique @db.VarChar(255)
+  password    String    @db.VarChar(255)
+  created_at  DateTime  @default(now()) @db.Timestamp(6)
+  is_verified Boolean   @default(false)
   products    Product[]
   usertoken   UserToken[]
-  
   bids        Bid[]
+
+  // Chat
+  messages_sent       Message[] 
+  conversations_buy   Conversation[] @relation("BuyerConversations")
+  conversations_sell  Conversation[] @relation("SellerConversations")
+
+  // Orders
+  orders_buyer        Order[] @relation("BuyerOrders")
+  orders_seller       Order[] @relation("SellerOrders")
 
   @@map("users")
 }
 
 model UserToken {
-  id            String   @id @default(uuid())
+  id                   String   @id @default(uuid())
   reset_password_token String?
-  verify_email_token  String?
-  user_id       String
-  created_at    DateTime @default(now()) @db.Timestamp(6)
-  expires_at    DateTime
-  user          User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  verify_email_token   String?
+  user_id              String
+  created_at           DateTime @default(now()) @db.Timestamp(6)
+  expires_at           DateTime
+  user                 User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
   @@map("usertoken")
 }
 
 model Auction {
-  id            String    @id @default(uuid())
-  start_date    DateTime
-  end_date      DateTime
-  start_price   Decimal  @db.Decimal(10, 2)
-  product_id    String   @unique
-  product       Product @relation(fields: [product_id], references: [id], onDelete: Cascade)
-  bids          Bid[]
-  status        AuctionStatus @default(OPEN)
+  id          String        @id @default(uuid())
+  start_date  DateTime
+  end_date    DateTime
+  start_price Decimal       @db.Decimal(10, 2)
+  product_id  String        @unique
+  product     Product       @relation(fields: [product_id], references: [id], onDelete: Cascade)
+  bids        Bid[]
+  status      AuctionStatus @default(OPEN)
 
   created_at  DateTime @default(now())
   updated_at  DateTime @updatedAt
@@ -126,4 +145,66 @@ model Bid {
   auction    Auction  @relation(fields: [auction_id], references: [id])
 
   @@map("bids")
+}
+
+model Message {
+  id              String   @id @default(uuid())
+  content         String   @db.Text
+  created_at      DateTime @default(now())
+  
+  read_at         DateTime? 
+
+  conversation_id String
+  sender_id       String
+
+  conversation    Conversation @relation(fields: [conversation_id], references: [id], onDelete: Cascade)
+  sender          User         @relation(fields: [sender_id], references: [id])
+
+  @@map("messages")
+}
+
+model Conversation {
+  id            String   @id @default(uuid())
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt 
+
+  buyer_id      String
+  seller_id     String
+  product_id    String?
+
+  buyer    User     @relation("BuyerConversations", fields: [buyer_id], references: [id])
+  seller   User     @relation("SellerConversations", fields: [seller_id], references: [id])
+  product  Product? @relation(fields: [product_id], references: [id])
+  
+  messages Message[]
+  orders   Order[]
+
+  @@map("conversations")
+}
+
+enum OrderStatus {
+  PENDING
+  COMPLETED
+  CANCELLED
+}
+
+model Order {
+  id              String      @id @default(uuid())
+  final_price     Int         // Preço final negociado (em centavos)
+  status          OrderStatus @default(PENDING)
+  created_at      DateTime    @default(now())
+  updated_at      DateTime    @updatedAt
+  completed_at    DateTime?
+
+  buyer_id        String
+  seller_id       String
+  product_id      String
+  conversation_id String?
+
+  buyer         User         @relation("BuyerOrders", fields: [buyer_id], references: [id])
+  seller        User         @relation("SellerOrders", fields: [seller_id], references: [id])
+  product       Product      @relation(fields: [product_id], references: [id])
+  conversation  Conversation? @relation(fields: [conversation_id], references: [id])
+
+  @@map("orders")
 }

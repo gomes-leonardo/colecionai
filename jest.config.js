@@ -9,4 +9,13 @@ module.exports = {
   transform: {
     ...tsJestTransformCfg,
   },
+  testMatch: ["**/*.spec.ts"],
+  collectCoverageFrom: [
+    "src/**/*.ts",
+    "!src/**/*.spec.ts",
+    "!src/**/*.d.ts",
+    "!src/shared/infra/http/server.ts",
+    "!src/jobs/**",
+  ],
+  modulePathIgnorePatterns: ["dist"],
 };

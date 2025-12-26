@@ -18,6 +18,12 @@ import { IMailProvider } from "./providers/MailProvider/IMailProvider";
 import { ConsoleMailProvider } from "./providers/MailProvider/Implementations/ConsoleMailProvider";
 import { IFeedbacksRepository } from "../../modules/feedbacks/repositories/IFeedbacksRepository";
 import { PrismaFeedbacksRepository } from "../../modules/feedbacks/repositories/prisma/PrismaFeedbacksRepository";
+import { IMessagesRepository } from "../../modules/messages/IMessagesRepository";
+import { PrismaMessagesRepository } from "../../modules/messages/repositories/prisma/PrismaMessagesRepository";
+import { IConversationsRepository } from "../../modules/conversations/IConversationsRepository";
+import { PrismaConversationsRepository } from "../../modules/conversations/repositories/prisma/PrismaConversationsRepository";
+import { IOrdersRepository } from "../../modules/orders/IOrdersRepository";
+import { PrismaOrdersRepository } from "../../modules/orders/repositories/prisma/PrismaOrdersRepository";
 
 container.registerSingleton<IUserRepository>(
   "UsersRepository",
@@ -52,6 +58,21 @@ container.registerSingleton<IBidsRepository>(
 container.registerSingleton<IFeedbacksRepository>(
   "FeedbacksRepository",
   PrismaFeedbacksRepository
+);
+
+container.registerSingleton<IMessagesRepository>(
+  "MessagesRepository",
+  PrismaMessagesRepository
+);
+
+container.registerSingleton<IConversationsRepository>(
+  "ConversationsRepository",
+  PrismaConversationsRepository
+);
+
+container.registerSingleton<IOrdersRepository>(
+  "OrdersRepository",
+  PrismaOrdersRepository
 );
 
 container.registerSingleton<IQueueProvider>("QueueProvider", BullQueueProvider);

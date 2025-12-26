@@ -32,15 +32,15 @@ import cookieParser from "cookie-parser";
 import { limiter } from "./middlewares/rateLimiter";
 import { createServer } from "node:http";
 import { Server } from "socket.io";
-import { verify } from "jsonwebtoken";
-import { auctionEvents } from "../../events/auctionEvents";
 import swaggerUi from "swagger-ui-express";
 import { swaggerSpec } from "./swagger";
 import "./swagger-docs";
+import { WebSocketService } from "./websockets/WebSocketService";
 
 const app = express();
 const port = process.env.PORT || 3333;
 const httpServer = createServer(app);
+const webSocketService = new WebSocketService(httpServer);
 
 if (process.env.NODE_ENV === "production") {
   app.set("trust proxy", true);
@@ -51,13 +51,7 @@ const allowedOrigins = [
   "https://colecionai-front.vercel.app",
 ];
 
-const io = new Server(httpServer, {
-  cors: {
-    origin: allowedOrigins,
-    methods: ["GET", "POST"],
-    credentials: true,
-  },
-});
+const io = webSocketService.getIO();
 
 app.use(express.json());
 app.use(cookieParser());

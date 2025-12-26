@@ -38,10 +38,18 @@ import { UpdateAuctionController } from "../../../../modules/auctions/useCases/u
 import { DeleteAuctionController } from "../../../../modules/auctions/useCases/deleteAuction/DeleteAuctionController";
 import { ListAuctionsDetailsController } from "../../../../modules/auctions/useCases/listAuctionDetails/ListAuctionDetailsController";
 import { LoadProfileInformationController } from "../../../../modules/accounts/useCases/loadProfileInformation/LoadProfileInformationController";
+import { GetUserStatsController } from "../../../../modules/accounts/useCases/getUserStats/GetUserStatsController";
 import { CreateBidController } from "../../../../modules/bids/useCases/createBid/CreateBidController";
 import { ListUserBidsController } from "../../../../modules/bids/useCases/listUserBids/ListUserBidsController";
 import { CreateFeedbackController } from "../../../../modules/feedbacks/useCases/createFeedback/CreateFeedbackController";
 import { ListFeedbackController } from "../../../../modules/feedbacks/useCases/listFeedbacks/ListFeedbackController";
+import { SendMessageController } from "../../../../modules/messages/useCases/sendMessage/SendMessageController";
+import { ListUserConversationsController } from "../../../../modules/conversations/repositories/useCases/listConversations/ListUserConversationsController";
+import { ListMessagesController } from "../../../../modules/messages/useCases/listMessages/ListMessagesController";
+import { MarkAsReadController } from "../../../../modules/conversations/repositories/useCases/markAsRead/MarkAsReadController";
+import { CreateOrderController } from "../../../../modules/orders/useCases/createOrder/CreateOrderController";
+import { ListUserOrdersController } from "../../../../modules/orders/useCases/listUserOrders/ListUserOrdersController";
+import { CompleteOrderController } from "../../../../modules/orders/useCases/completeOrder/CompleteOrderController";
 
 const router = Router();
 
@@ -61,6 +69,7 @@ const loadUserProfileController = new LoadUserProfileController();
 const logoutUserController = new LogoutUserController();
 const sendPasswordToken = new CreateForgotPasswordTokenController();
 const profileInformationController = new LoadProfileInformationController();
+const getUserStatsController = new GetUserStatsController();
 
 const createAuctionController = new CreateAuctionController();
 const listAuctionController = new ListAuctionsController();
@@ -70,9 +79,19 @@ const updateAuctionController = new UpdateAuctionController();
 const deleteAuctionController = new DeleteAuctionController();
 const createBidController = new CreateBidController();
 const listUserBidsController = new ListUserBidsController();
-
+const listMessagesController = new ListMessagesController();
 const createFeedbackController = new CreateFeedbackController();
 const listFeedbackController = new ListFeedbackController();
+
+const markAsReadController = new MarkAsReadController();
+
+const sendMessageController = new SendMessageController();
+
+const listConversationsController = new ListUserConversationsController();
+
+const createOrderController = new CreateOrderController();
+const listUserOrdersController = new ListUserOrdersController();
+const completeOrderController = new CompleteOrderController();
 
 const upload = multer(uploadConfig);
 
@@ -88,6 +107,7 @@ router.get("/me", ensureAuthenticated, loadUserProfileController.handle);
 router.post("/verify", verifyEmailToken.handle);
 router.post("/verify/resend", sendVerificationToken.handle);
 router.get("/profile/:id", profileInformationController.handle);
+router.get("/users/:id/stats", getUserStatsController.handle);
 router.post("/forgot-password", sendPasswordToken.handle);
 router.post(
   "/reset-password",
@@ -182,5 +202,27 @@ router.get("/bids/me", ensureAuthenticated, listUserBidsController.handle);
 // FEEDBACKS
 router.post("/feedback", createFeedbackController.handle);
 router.get("/feedbacks", listFeedbackController.handle);
+
+// MESSAGES
+router.post("/messages", ensureAuthenticated, sendMessageController.handle);
+
+router.get(
+  "/messages/:id/",
+  ensureAuthenticated,
+  listMessagesController.handle
+);
+
+// CONVERSATIONS
+router.get(
+  "/conversations",
+  ensureAuthenticated,
+  listConversationsController.handle
+);
+
+router.patch(
+  "/conversations/:id/read",
+  ensureAuthenticated,
+  markAsReadController.handle
+);
 
 export default router;

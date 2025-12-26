@@ -41,6 +41,7 @@ export class PrismaProductsRepository implements IProductsRepository {
         category: category ? { equals: category } : undefined,
         condition: condition ? { equals: condition } : undefined,
         auction: { is: null },
+        status: "AVAILABLE", // Apenas produtos disponíveis
       },
     });
   }
@@ -84,6 +85,16 @@ export class PrismaProductsRepository implements IProductsRepository {
   async delete(id: string): Promise<void> {
     await prisma.product.delete({
       where: { id },
+    });
+  }
+
+  async updateStatus(
+    id: string,
+    status: "AVAILABLE" | "SOLD" | "IN_AUCTION" | "RESERVED"
+  ): Promise<Product> {
+    return await prisma.product.update({
+      where: { id },
+      data: { status },
     });
   }
 }
