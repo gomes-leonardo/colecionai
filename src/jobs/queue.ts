@@ -6,7 +6,7 @@ const redisConfig: RedisOptions = {
   port: Number(process.env.REDIS_PORT) || 6379,
   password: process.env.REDIS_PASSWORD || undefined,
   maxRetriesPerRequest: null,
-  connectTimeout: 5000,
+  connectTimeout: 3000,
   retryStrategy: (times) => {
     if (times > 1) {
       return null;
@@ -14,7 +14,6 @@ const redisConfig: RedisOptions = {
     return 100;
   },
   lazyConnect: true,
-  enableReadyCheck: false,
   enableOfflineQueue: false,
   showFriendlyErrorStack: false,
 };
@@ -25,25 +24,45 @@ if (process.env.REDIS_PASSWORD) {
   };
 }
 
+let queueErrorLogged = false;
 const connection = new Redis(redisConfig);
 
-let errorLogged = false;
-connection.on("error", (err: any) => {
-  if (err?.code === "ECONNREFUSED") {
-    if (process.env.NODE_ENV !== "production" && !errorLogged) {
-      console.warn("[Redis Queue] ⚠️  Redis não está disponível. Filas de jobs não funcionarão.");
-      console.warn("[Redis Queue] 💡 Para habilitar: docker compose up redis -d");
-      errorLogged = true;
+connection.on('error', (err: any) => {
+  if (err?.code === 'ECONNREFUSED' || err?.code === 'ENOTFOUND' || err?.message?.includes('ECONNREFUSED') || err?.message?.includes('Connection is closed')) {
+    if (process.env.NODE_ENV !== 'production' && !queueErrorLogged) {
+      console.warn('[Redis Queue] ⚠️  Redis não disponível. Filas desabilitadas.');
+      queueErrorLogged = true;
     }
     return;
   }
-  
-  if (process.env.NODE_ENV === "production") {
-    console.error("[Redis Queue] Erro de conexão:", err?.message || err);
+  if (process.env.NODE_ENV === 'production') {
+    console.error('[Redis Queue] Erro:', err?.message || err);
   }
 });
 
-export const emailQueue = new Queue("emails", { connection });
+connection.on('close', () => {
+  if (process.env.NODE_ENV !== 'production' && !queueErrorLogged) {
+    return;
+  }
+});
+
+export const emailQueue = new Queue("emails", { 
+  connection,
+  defaultJobOptions: {
+    attempts: 3,
+    backoff: {
+      type: 'exponential',
+      delay: 2000,
+    },
+    removeOnComplete: {
+      age: 3600,
+      count: 1000,
+    },
+    removeOnFail: {
+      age: 86400,
+    },
+  },
+});
 export const auctionQueue = new Queue("close-auctions", { connection });
 
 export { connection };

@@ -54,10 +54,14 @@ export class SMTPMailProvider implements IMailProvider {
         // Não falhar em certificados inválidos (útil para alguns hosts)
         rejectUnauthorized: false,
       },
-      // Timeout maior para ambientes de produção lentos
-      connectionTimeout: 10000, // 10 segundos
-      greetingTimeout: 10000,
-      socketTimeout: 10000,
+      // Timeout maior para ambientes de produção (aumentado para 30s)
+      connectionTimeout: 30000, // 30 segundos
+      greetingTimeout: 30000,
+      socketTimeout: 30000,
+      // Retry automático no nível do transporter
+      pool: true,
+      maxConnections: 5,
+      maxMessages: 100,
       // Debug em desenvolvimento
       debug: process.env.NODE_ENV === "development",
       logger: process.env.NODE_ENV === "development",
@@ -74,22 +78,47 @@ export class SMTPMailProvider implements IMailProvider {
   }
 
   async sendMail(to: string, subject: string, body: string): Promise<void> {
-    try {
-      if (!to || !subject || !body) {
-        throw new Error("Parâmetros de email inválidos");
-      }
-
-      const result = await this.client.sendMail({
-        to,
-        from: "Coleciona.ai <noreply@coleciona.ai>",
-        subject,
-        html: body,
-      });
-
-      console.log(`[SMTP] Email enviado para: ${to}`, { messageId: result.messageId });
-    } catch (error) {
-      console.error(`[SMTP] Erro ao enviar email para ${to}:`, error);
-      throw error;
+    if (!to || !subject || !body) {
+      throw new Error("Parâmetros de email inválidos");
     }
+
+    const maxRetries = 3;
+    let lastError: any;
+
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        const result = await Promise.race([
+          this.client.sendMail({
+            to,
+            from: "Coleciona.ai <noreply@coleciona.ai>",
+            subject,
+            html: body,
+          }),
+          new Promise((_, reject) =>
+            setTimeout(() => reject(new Error('TIMEOUT')), 30000)
+          )
+        ]) as any;
+
+        console.log(`[SMTP] Email enviado para: ${to}`, { messageId: result.messageId });
+        return;
+      } catch (error: any) {
+        lastError = error;
+        const isTimeout = error?.code === 'ETIMEDOUT' || error?.message === 'TIMEOUT' || error?.message?.includes('timeout');
+        
+        if (isTimeout && attempt < maxRetries) {
+          const delay = Math.min(1000 * Math.pow(2, attempt - 1), 10000);
+          console.warn(`[SMTP] Timeout ao enviar email para ${to} (tentativa ${attempt}/${maxRetries}). Retry em ${delay}ms...`);
+          await new Promise(resolve => setTimeout(resolve, delay));
+          continue;
+        }
+        
+        if (attempt === maxRetries) {
+          console.error(`[SMTP] Erro ao enviar email para ${to} após ${maxRetries} tentativas:`, error);
+          throw error;
+        }
+      }
+    }
+
+    throw lastError;
   }
 }
