@@ -6,13 +6,39 @@ import {
 } from "../../IConversationsRepository";
 import prisma from "../../../../shared/infra/prisma";
 
+// #region agent log
+fetch('http://127.0.0.1:7243/ingest/a83c1e8a-22fe-42b9-b967-ae0dd278b3dc',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'PrismaConversationsRepository.ts:7',message:'Module loaded',data:{prismaExists:!!prisma,conversationExists:!!prisma?.conversation,prismaType:typeof prisma},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
+// #endregion
+
 export class PrismaConversationsRepository implements IConversationsRepository {
   async findByConversationId(
     conversation_id: string
   ): Promise<Conversation | null> {
-    return await prisma.conversation.findFirst({
-      where: { id: conversation_id },
-    });
+    // #region agent log
+    fetch('http://127.0.0.1:7243/ingest/a83c1e8a-22fe-42b9-b967-ae0dd278b3dc',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'PrismaConversationsRepository.ts:10',message:'findByConversationId called',data:{conversation_id,prismaExists:!!prisma,conversationExists:!!prisma?.conversation},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+    // #endregion
+    
+    // #region agent log
+    const prismaKeys = prisma ? Object.keys(prisma).filter(k => !k.startsWith('$') && !k.startsWith('_')).slice(0, 10) : [];
+    fetch('http://127.0.0.1:7243/ingest/a83c1e8a-22fe-42b9-b967-ae0dd278b3dc',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'PrismaConversationsRepository.ts:13',message:'before findFirst',data:{conversation_id,prismaKeys,hasConversation:'conversation' in (prisma || {})},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+    // #endregion
+    
+    try {
+      const result = await prisma.conversation.findFirst({
+        where: { id: conversation_id },
+      });
+      
+      // #region agent log
+      fetch('http://127.0.0.1:7243/ingest/a83c1e8a-22fe-42b9-b967-ae0dd278b3dc',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'PrismaConversationsRepository.ts:20',message:'findFirst success',data:{conversation_id,resultFound:!!result},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+      // #endregion
+      
+      return result;
+    } catch (err: any) {
+      // #region agent log
+      fetch('http://127.0.0.1:7243/ingest/a83c1e8a-22fe-42b9-b967-ae0dd278b3dc',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'PrismaConversationsRepository.ts:25',message:'findFirst error',data:{conversation_id,errorMessage:err?.message,errorName:err?.name,errorStack:err?.stack?.substring(0,200)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+      // #endregion
+      throw err;
+    }
   }
   async create({
     seller_id,
@@ -32,13 +58,30 @@ export class PrismaConversationsRepository implements IConversationsRepository {
     buyer_id,
     product_id,
   }: IFindProductDto): Promise<Conversation | null> {
-    return await prisma.conversation.findFirst({
-      where: {
-        seller_id,
-        buyer_id,
-        product_id,
-      },
-    });
+    // #region agent log
+    fetch('http://127.0.0.1:7243/ingest/a83c1e8a-22fe-42b9-b967-ae0dd278b3dc',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'PrismaConversationsRepository.ts:30',message:'findByProductAndUsers called',data:{seller_id,buyer_id,product_id,prismaExists:!!prisma,conversationExists:!!prisma?.conversation},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+    // #endregion
+    
+    try {
+      const result = await prisma.conversation.findFirst({
+        where: {
+          seller_id,
+          buyer_id,
+          product_id,
+        },
+      });
+      
+      // #region agent log
+      fetch('http://127.0.0.1:7243/ingest/a83c1e8a-22fe-42b9-b967-ae0dd278b3dc',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'PrismaConversationsRepository.ts:40',message:'findByProductAndUsers success',data:{seller_id,buyer_id,product_id,resultFound:!!result},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+      // #endregion
+      
+      return result;
+    } catch (err: any) {
+      // #region agent log
+      fetch('http://127.0.0.1:7243/ingest/a83c1e8a-22fe-42b9-b967-ae0dd278b3dc',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'PrismaConversationsRepository.ts:47',message:'findByProductAndUsers error',data:{seller_id,buyer_id,product_id,errorMessage:err?.message,errorName:err?.name,errorStack:err?.stack?.substring(0,200)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
+      // #endregion
+      throw err;
+    }
   }
   async listByUser(user_id: string): Promise<any[]> {
     const conversations = await prisma.conversation.findMany({
