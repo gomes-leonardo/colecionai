@@ -1,15 +1,13 @@
-import fs from "fs";
-import path from "path";
-import uploadConfig from "../../../../config/upload";
 import { IProductsRepository } from "../../repositories/IProductsRepository";
 import { AppError } from "../../../../shared/errors/AppError";
 import { injectable, inject } from "tsyringe";
 import { ICacheProvider } from "../../../../shared/container/providers/CacheProvider/ICacheProvider";
+import { IStorageProvider } from "../../../../shared/container/providers/StorageProvider/IStorageProvider";
 
 interface IRequest {
   productId: string;
   userId: string;
-  imageFilename: string;
+  file: Express.Multer.File;
 }
 @injectable()
 export class UpdateProductImageUseCase {
@@ -17,10 +15,12 @@ export class UpdateProductImageUseCase {
     @inject("ProductsRepository")
     private productsRepository: IProductsRepository,
     @inject("CacheProvider")
-    private cacheProvider: ICacheProvider
+    private cacheProvider: ICacheProvider,
+    @inject("StorageProvider")
+    private storageProvider: IStorageProvider
   ) {}
 
-  async execute({ productId, userId, imageFilename }: IRequest) {
+  async execute({ productId, userId, file }: IRequest) {
     const product = await this.productsRepository.findById(productId);
 
     if (!product) {
@@ -37,21 +37,12 @@ export class UpdateProductImageUseCase {
     await this.cacheProvider.invalidatePrefix("products-list");
 
     if (product.banner) {
-      const productBannerFilePath = path.join(
-        uploadConfig.directory,
-        product.banner
-      );
-
-      const productBannerFileExists = await fs.promises
-        .stat(productBannerFilePath)
-        .catch(() => false);
-
-      if (productBannerFileExists) {
-        await fs.promises.unlink(productBannerFilePath);
-      }
+      await this.storageProvider.deleteFile(product.banner);
     }
 
-    product.banner = imageFilename;
+    const imageUrl = await this.storageProvider.saveFile(file);
+
+    product.banner = imageUrl;
 
     const result = await this.productsRepository.update(product);
 

@@ -1,5 +1,6 @@
 import "reflect-metadata";
 import dotenv from "dotenv";
+import { verify } from "jsonwebtoken";
 dotenv.config();
 
 if (process.env.NODE_ENV !== 'production') {
@@ -36,6 +37,7 @@ import swaggerUi from "swagger-ui-express";
 import { swaggerSpec } from "./swagger";
 import "./swagger-docs";
 import { WebSocketService } from "./websockets/WebSocketService";
+import { auctionEvents } from "../../events/auctionEvents";
 
 const app = express();
 const port = process.env.PORT || 3333;
@@ -130,14 +132,14 @@ io.on("connection", (socket) => {
   });
 });
 
-auctionEvents.on("bid:created", (bid) => {
+auctionEvents.on("bid:created", (bid: { user: string; amount: number; auction_id: string }) => {
   console.log(
     `📢 Update Público: Lance de ${bid.amount} no leilão ${bid.auction_id}`
   );
   io.to(bid.auction_id).emit("new_bid", bid);
 });
 
-auctionEvents.on("bid:outbid", (data) => {
+auctionEvents.on("bid:outbid", (data: { recipient_id: string; username: string; newAmount: number; productName: string }) => {
   console.log(
     `⚠️ OUTBID: Avisando ${data.username} que perdeu para ${data.newAmount}`
   );
@@ -150,7 +152,7 @@ auctionEvents.on("bid:outbid", (data) => {
   });
 });
 
-auctionEvents.on("bid:received", (data) => {
+auctionEvents.on("bid:received", (data: { recipient_id: string; username: string; amount: number; productName: string }) => {
   console.log(`💰 OWNER: Avisando dono (${data.username}) sobre novo lance`);
 
   io.to(data.recipient_id).emit("notification", {

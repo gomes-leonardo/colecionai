@@ -12,14 +12,12 @@ export class UpdateProductImageController {
       throw new AppError("Arquivo de imagem é obrigatório.", 400);
     }
 
-    const imageFilename = req.file.filename;
-
     const updateImageUseCase = container.resolve(UpdateProductImageUseCase);
 
     const result = await updateImageUseCase.execute({
       productId: id,
       userId: userId,
-      imageFilename: imageFilename,
+      file: req.file,
     });
 
     return res.status(200).json(result);

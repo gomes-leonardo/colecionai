@@ -1,24 +1,31 @@
 import { randomUUID } from "crypto";
 import { AppError } from "../../../../shared/errors/AppError";
 import { CreateProductUseCase } from "../../useCases/createProduct/createProductUseCase";
-import { UpdateProductImageUseCase } from "../../useCases/updateBannerProduct/updateProductProductUseCase"; // Ajuste o caminho
+import { UpdateProductImageUseCase } from "../../useCases/updateBannerProduct/updateProductProductUseCase";
 import { ProductsRepositoryInMemory } from "./ProductsRepositoryInMemory";
 import { InMemoryCacheProvider } from "../../../../shared/container/providers/CacheProvider/Implementations/InMemoryCacheProvider";
+import { IStorageProvider } from "../../../../shared/container/providers/StorageProvider/IStorageProvider";
 
 let updateProductImageUseCase: UpdateProductImageUseCase;
 let createProductUseCase: CreateProductUseCase;
 let productRepositoryInMemory: ProductsRepositoryInMemory;
 let cacheProvider: InMemoryCacheProvider;
 
+const mockStorageProvider: IStorageProvider = {
+  saveFile: jest.fn().mockImplementation(async (file: Express.Multer.File) => {
+    return `https://res.cloudinary.com/test/image/upload/v123/products/${file.originalname}`;
+  }),
+  deleteFile: jest.fn().mockResolvedValue(undefined),
+};
+
 describe("Update Product Image", () => {
   beforeEach(() => {
-    productRepositoryInMemory = new ProductsRepositoryInMemory();
-
     productRepositoryInMemory = new ProductsRepositoryInMemory();
     cacheProvider = new InMemoryCacheProvider();
     updateProductImageUseCase = new UpdateProductImageUseCase(
       productRepositoryInMemory,
-      cacheProvider
+      cacheProvider,
+      mockStorageProvider
     );
     createProductUseCase = new CreateProductUseCase(
       productRepositoryInMemory,
@@ -38,25 +45,44 @@ describe("Update Product Image", () => {
       userId: userId,
     });
 
+    const mockFile = {
+      fieldname: "image",
+      originalname: "nova-foto.jpg",
+      encoding: "7bit",
+      mimetype: "image/jpeg",
+      buffer: Buffer.from("fake-image-data"),
+      size: 1024,
+    } as Express.Multer.File;
+
     const updatedProduct = await updateProductImageUseCase.execute({
       productId: product.id,
       userId: product.user_id,
-      imageFilename: "nova-foto.jpg",
+      file: mockFile,
     });
     const uuidRegex =
       /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
     expect(product.id).toMatch(uuidRegex);
     expect(product.user_id).toMatch(uuidRegex);
-    expect(updatedProduct.banner).toBe("nova-foto.jpg");
+    expect(updatedProduct.banner).toContain("nova-foto.jpg");
+    expect(mockStorageProvider.saveFile).toHaveBeenCalledWith(mockFile);
   });
 
   it("should not be able to update image of non-existing product", async () => {
+    const mockFile = {
+      fieldname: "image",
+      originalname: "foto.jpg",
+      encoding: "7bit",
+      mimetype: "image/jpeg",
+      buffer: Buffer.from("fake-image-data"),
+      size: 1024,
+    } as Express.Multer.File;
+
     await expect(
       updateProductImageUseCase.execute({
         productId: "999",
         userId: userId,
-        imageFilename: "foto.jpg",
+        file: mockFile,
       })
     ).rejects.toBeInstanceOf(AppError);
   });
@@ -71,11 +97,20 @@ describe("Update Product Image", () => {
       userId: "1",
     });
 
+    const mockFile = {
+      fieldname: "image",
+      originalname: "hacked.jpg",
+      encoding: "7bit",
+      mimetype: "image/jpeg",
+      buffer: Buffer.from("fake-image-data"),
+      size: 1024,
+    } as Express.Multer.File;
+
     await expect(
       updateProductImageUseCase.execute({
         productId: product.id,
         userId: "2",
-        imageFilename: "hacked.jpg",
+        file: mockFile,
       })
     ).rejects.toEqual(expect.objectContaining({ statusCode: 403 }));
   });

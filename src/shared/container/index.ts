@@ -24,6 +24,8 @@ import { IConversationsRepository } from "../../modules/conversations/IConversat
 import { PrismaConversationsRepository } from "../../modules/conversations/repositories/prisma/PrismaConversationsRepository";
 import { IOrdersRepository } from "../../modules/orders/IOrdersRepository";
 import { PrismaOrdersRepository } from "../../modules/orders/repositories/prisma/PrismaOrdersRepository";
+import { IStorageProvider } from "./providers/StorageProvider/IStorageProvider";
+import { CloudinaryStorageProvider } from "./providers/StorageProvider/Implementations/CloudinaryStorageProvider";
 
 container.registerSingleton<IUserRepository>(
   "UsersRepository",
@@ -76,6 +78,11 @@ container.registerSingleton<IOrdersRepository>(
 );
 
 container.registerSingleton<IQueueProvider>("QueueProvider", BullQueueProvider);
+
+container.registerSingleton<IStorageProvider>(
+  "StorageProvider",
+  CloudinaryStorageProvider
+);
 
 const mailProvider = process.env.MAIL_PROVIDER || "console";
 
