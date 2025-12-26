@@ -14,6 +14,13 @@ export function globalError(
     });
   }
 
+  if ((err as any)?.code === 'ECONNREFUSED' && (err as any)?.meta?.modelName) {
+    return response.status(503).json({
+      status: "error",
+      message: "Banco de dados não está disponível. Verifique se o PostgreSQL está rodando.",
+    });
+  }
+
   console.error(err);
 
   return response.status(500).json({

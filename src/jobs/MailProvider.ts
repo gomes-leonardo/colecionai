@@ -37,13 +37,23 @@ export const emailWorker = new Worker(
         default:
           console.warn(`Job desconhecido: ${job.name}`);
       }
-    } catch (err) {
-      console.error(`Erro no envio de email para job ${job.id}`, err);
+    } catch (err: any) {
+      const isTimeout = err?.code === 'ETIMEDOUT' || err?.message?.includes('timeout') || err?.message?.includes('TIMEOUT');
+      console.error(`[SMTP] Erro ao enviar email para ${job.data?.email || 'desconhecido'}:`, err?.message || err);
+      
+      if (isTimeout) {
+        throw new Error(`Connection timeout após múltiplas tentativas: ${err?.message || err}`);
+      }
+      
       throw err;
     }
   },
   {
     connection,
-    concurrency: 10,
+    concurrency: 5,
+    limiter: {
+      max: 10,
+      duration: 1000,
+    },
   }
 );

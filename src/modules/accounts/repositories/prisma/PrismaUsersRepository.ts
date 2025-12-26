@@ -15,11 +15,17 @@ export class PrismaUsersRepository implements IUserRepository {
     return user;
   }
   async findByEmail(email: string): Promise<User | null> {
-    const user = await prisma.user.findUnique({
-      where: { email },
-    });
-
-    return user;
+    try {
+      const user = await prisma.user.findUnique({
+        where: { email },
+      });
+      return user;
+    } catch (error: any) {
+      if (error?.code === 'ECONNREFUSED' || error?.message?.includes('ECONNREFUSED')) {
+        throw new Error('Banco de dados não está disponível. Verifique se o PostgreSQL está rodando.');
+      }
+      throw error;
+    }
   }
 
   async findById(id: string): Promise<User | null> {

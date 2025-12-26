@@ -1,4 +1,28 @@
 import "reflect-metadata";
+import dotenv from "dotenv";
+dotenv.config();
+
+if (process.env.NODE_ENV !== 'production') {
+  const originalConsoleError = console.error;
+  let redisErrorSuppressed = false;
+  
+  console.error = function (...args: any[]): void {
+    const firstArg = args[0];
+    const message = firstArg?.message || String(firstArg || '');
+    const stack = firstArg?.stack || '';
+    
+    if ((message.includes('ECONNREFUSED') || message.includes('Connection is closed')) && 
+        (message.includes('6379') || stack.includes('Redis') || stack.includes('ioredis'))) {
+      if (!redisErrorSuppressed) {
+        redisErrorSuppressed = true;
+        return;
+      }
+      return;
+    }
+    
+    originalConsoleError.apply(console, args);
+  };
+}
 import express from "express";
 import router from "./routes";
 import "../../../shared/container/index";
@@ -143,8 +167,59 @@ auctionEvents.on("bid:received", (data) => {
   });
 });
 
-httpServer.listen(port, () => {
+async function checkDatabaseHealth() {
+  try {
+    const { pool } = await import("../../../db");
+    
+    const result = await Promise.race([
+      pool.query("SELECT 1"),
+      new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('TIMEOUT')), 3000)
+      )
+    ]) as any;
+    
+    return true;
+  } catch (error: any) {
+    
+    if (error?.message === 'TIMEOUT') {
+      console.error('');
+      console.error('❌ Timeout ao conectar ao banco de dados!');
+      console.error('');
+      console.error('💡 O banco pode estar iniciando. Aguarde alguns segundos e recarregue.');
+      console.error('');
+      return false;
+    }
+    
+    if (error?.code === 'ECONNREFUSED' || error?.message?.includes('ECONNREFUSED')) {
+      console.error('');
+      console.error('❌ Banco de dados não está disponível!');
+      console.error('');
+      console.error('💡 Verifique se:');
+      console.error('   1. Container "colecionai" está rodando no Docker Desktop');
+      console.error('   2. Porta 5432 está mapeada corretamente');
+      console.error('   3. Tente reiniciar o container: docker restart colecionai');
+      console.error('');
+      return false;
+    }
+    
+    console.error('');
+    console.error('❌ Erro ao verificar banco de dados:', error?.message || error);
+    console.error('');
+    return false;
+  }
+}
+
+httpServer.listen(port, async () => {
   console.log(`Server running on http://localhost:${port}`);
+  
+  if (process.env.NODE_ENV !== 'production') {
+    const dbHealthy = await checkDatabaseHealth();
+    if (!dbHealthy) {
+      console.warn('⚠️  Servidor iniciado, mas banco de dados não está disponível');
+      console.warn('   Algumas funcionalidades podem não funcionar corretamente');
+    }
+  }
+  
   if (process.env.NODE_ENV === "production") {
     console.log("[Server] Iniciando worker em produção...");
     try {
@@ -163,6 +238,14 @@ httpServer.listen(port, () => {
       "[Server] Modo desenvolvimento - rode 'npm run worker' em terminal separado"
     );
   }
+}).on('error', (err: any) => {
+  if (err.code === 'EADDRINUSE') {
+    console.error(`❌ Porta ${port} já está em uso!`);
+    console.error(`💡 Execute: lsof -ti:${port} | xargs kill -9`);
+  } else {
+    console.error('❌ Erro ao iniciar servidor:', err.message);
+  }
+  process.exit(1);
 });
 
 export { io };
